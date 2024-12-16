@@ -6,23 +6,23 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using DiscoveryPins.Extensions;
 
+
 namespace DiscoveryPins.Patches
 {
     [HarmonyPatch]
     internal static class OrePins
     {
-        // Want to add an autopinner component to all ores in the game by editing their prefabs
-        // Trigger pins via MineRock5 and Destructible component
         private static readonly List<string> OreNames = new () { "Tin", "Copper", "Silver" };
-        private static Dictionary<string, GameObject> OrePrefabs = new();
+        //private static Dictionary<string, GameObject> OrePrefabs = new();
+        private static HashSet<string> OrePrefabNames = new();
 
         /// <summary>
-        ///     Hook to edit prefabs for ores
+        ///     Add Autopinner component to all ores in the game via editing their prefabs.
         /// </summary>
         [HarmonyPrefix]
-        [HarmonyPriority(Priority.High)]
+        [HarmonyPriority(Priority.First)]
         [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.Start))]
-        public static void ZoneSystemStartPrefix()
+        private static void ZoneSystem_Start_Prefix()
         {
             // If loading into game world and prefabs have not been added
             if (SceneManager.GetActiveScene().name != "main")
@@ -30,43 +30,53 @@ namespace DiscoveryPins.Patches
                 return;
             }
 
+            // Get prefabs that are mineable ores and modify them
             foreach (var prefab in ZNetScene.instance.m_prefabs)
             {
-                if (!prefab.transform.parent && IsOrePrefab(prefab, out string OreName) && !OrePrefabs.ContainsKey(prefab.name))
+                if (!prefab.transform.parent && IsOrePrefab(prefab, out string OreName) && !OrePrefabNames.Contains(prefab.name))
                 {
-                    Log.LogInfo($"Found ore prefab: {prefab.name}");
-                    OrePrefabs.Add(prefab.name, prefab);
+                    OrePrefabNames.Add(prefab.name);
                     AutoPinner.AddAutoPinner(prefab, OreName, AutoPins.AutoPinCategory.Ore);
-                    // AutoPinner component is ending up with nonsense values for names on prefabs
-                    // since it's getting cloned and the default values aren't set
                 }
             }
         }
 
-        internal static bool IsOrePrefab(GameObject prefab, out string OreName)
+        private static void AddAutoPinnerIfOre(GameObject gameObject)
         {
-            OreName = string.Empty;
-            if (prefab.GetComponent<Destructible>())
+            if (gameObject.GetComponent<Destructible>() || gameObject.GetComponent<MineRock5>())
             {
-                if (TryGetOreName(prefab, out OreName))
+                if (TryGetOreName(gameObject, out string OreName))
                 {
-                    return true;
+                    AutoPinner.AddAutoPinner(gameObject, OreName, AutoPins.AutoPinCategory.Ore);
                 }
             }
+        }
 
-            if (prefab.GetComponent<MineRock5>()){
-                if (TryGetOreName(prefab, out OreName))
-                {
-                    return true;
-                }
+        /// <summary>
+        ///     Check if it is an Ore prefab and get Ore name
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="OreName"></param>
+        /// <returns></returns>
+        private static bool IsOrePrefab(GameObject gameObject, out string OreName)
+        {
+
+            if (gameObject.GetComponent<Destructible>() || gameObject.GetComponent<MineRock5>())
+            {
+                return TryGetOreName(gameObject, out OreName);
             }
-
+            OreName = null;
             return false;
         }
 
+        /// <summary>
+        ///     Try getting the name of the Ore that is mined from this prefab
+        /// </summary>
+        /// <param name="prefab"></param>
+        /// <param name="OreName"></param>
+        /// <returns></returns>
         internal static bool TryGetOreName(GameObject prefab, out string OreName)
         {
-            OreName = string.Empty;  
             foreach (var name in OreNames)
             {
                 if (prefab.name.Contains(name, StringComparison.OrdinalIgnoreCase))
@@ -75,33 +85,87 @@ namespace DiscoveryPins.Patches
                     return true;
                 }
             }
+
+            OreName = null;
             return false;
         }
 
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(Destructible), nameof(Destructible.Awake))]
+        //public static void Destructible_Awake_Postfix(Destructible __instance)
+        //{
+        //    AddAutoPinnerIfOre(__instance.gameObject);
+        //}
 
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(MineRock5), nameof(MineRock5.Awake))]
+        //public static void MineRock5_Awake_Postfix(MineRock5 __instance)
+        //{
+        //    AddAutoPinnerIfOre(__instance.gameObject);
+        //}
+
+        /// <summary>
+        ///     Trigger autopin when damaging the mineable rock.
+        /// </summary>
+        /// <param name="__instance"></param>
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MineRock5), nameof(MineRock5.RPC_Damage))]
         public static void MineRock5_RPCDamage_Prefix(MineRock5 __instance)
         {
             if (__instance.TryGetComponent(out AutoPinner autoPinner)){
-                Log.LogInfo($"MineRock5_RPC_Damage: pin name: {autoPinner.PinName}, category: {autoPinner.AutoPinCategory.ToString()}");
                 autoPinner.AddAutoPin();
             }
         }
 
+        /// <summary>
+        ///     Remove autopin when mineable rock destroyed.
+        /// </summary>
+        /// <param name="__instance"></param>
+        /// <param name="__result"></param>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MineRock5), nameof(MineRock5.AllDestroyed))]
+        public static void AllDestroyed(MineRock5 __instance, bool __result)
+        {
+            if (__result && __instance.TryGetComponent(out AutoPinner autoPinner))
+            {
+                autoPinner.RemoveAutoPin();
+            }
+        }
+
+        /// <summary>
+        ///     Trigger autopin when mineable rock is damaged.
+        /// </summary>
+        /// <param name="__instance"></param>
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Destructible), nameof(Destructible.RPC_Damage))]
         public static void Destructible_RPCDamage_Prefix(Destructible __instance)
         {
             if (__instance.TryGetComponent(out AutoPinner autoPinner))
             {
-                Log.LogInfo($"Destructible_RPC_Damage: pin name: {autoPinner.PinName}, category: {autoPinner.AutoPinCategory.ToString()}");
                 autoPinner.AddAutoPin();
             }
         }
 
-//[Info: DiscoveryPins] Destructible_RPC_Damage: pin name: , category: Dungeon
-//[Info   :DiscoveryPins] Adding Auto Pin with name: , category: Cave
+        /// <summary>
+        ///     Remove autopin when mineable rock is destroyed, unless it spawns another mineable rock.
+        /// </summary>
+        /// <param name="__instance"></param>
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Destructible), nameof(Destructible.Destroy))]
+        public static void Destructible_Destroy_Prefix(Destructible __instance)
+        {
+            if (__instance.TryGetComponent(out AutoPinner autoPinner))
+            {
+                if (__instance.m_spawnWhenDestroyed &&
+                    __instance.m_spawnWhenDestroyed.GetComponent<MineRock5>() &&
+                    TryGetOreName(__instance.m_spawnWhenDestroyed, out string OreName))
+                {
+                    // Skip removing pin if it spawns a new ore prefab
+                    return;
+                }
 
+                autoPinner.RemoveAutoPin();
+            }
+        }
     }
 }

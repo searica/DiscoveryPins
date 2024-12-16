@@ -21,13 +21,11 @@ namespace DiscoveryPins.Patches
 
             if (__instance.TryGetInteriorEntrance(out Teleport entrance, out string name))
             {
-                Log.LogInfo($"{name} has an interior entrance.");
                 AutoPinner.AddAutoPinner(entrance.gameObject, name, AutoPins.AutoPinCategory.Dungeon);
             }
 
             else if (__instance.TryGetOverworldDungeon(out DungeonGenerator generator, out name))
             {
-                Log.LogInfo($"{name} is an overworld dungeon.");
                 AutoPinner.AddAutoPinner(generator.gameObject, name, AutoPins.AutoPinCategory.Location);
             }
             else

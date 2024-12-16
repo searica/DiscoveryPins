@@ -1,4 +1,6 @@
-﻿using Jotunn;
+﻿using BepInEx.Configuration;
+using Jotunn;
+using MonoMod.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using static DiscoveryPins.DiscoveryPins;
@@ -8,9 +10,39 @@ namespace DiscoveryPins.Pins
 {
     internal class AutoPinner : MonoBehaviour
     {
-        internal string PinName;
-        internal AutoPins.AutoPinCategory AutoPinCategory;
-        internal Vector3 LastPosition;
+        
+        private const float FindPinPrecision = 1.0f;
+        private const float InvokeRepeatingTime = 0.1f;
+
+        // These need to be public for their values to be copied when a prefab is instantiated.
+        public string PinName;
+        public AutoPins.AutoPinCategory AutoPinCategory;
+        private Vector3 LastPosition;
+        public Vector3 Position {  
+            get
+            {
+                if (this.transform)
+                {
+                    LastPosition = transform.position;
+                }
+                return LastPosition;
+            }
+        }
+
+        /// <summary>
+        ///     Add AutoPinner to target gameObject and initialize PinName and AutoPinCategory
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="pinName"></param>
+        /// <param name="pinCategory"></param>
+        internal static void AddAutoPinner(GameObject target, string pinName, AutoPins.AutoPinCategory pinCategory)
+        {
+            var autoPinner = target.GetOrAddComponent<AutoPinner>();
+            autoPinner.PinName = pinName;
+            autoPinner.AutoPinCategory = pinCategory;
+            //Log.LogDebug($"Added AutoPinner with name: {pinName} and category: {pinCategory.ToString()}");
+        }
+
 
         /// <summary>
         ///     Update position on Awake.
@@ -20,16 +52,56 @@ namespace DiscoveryPins.Pins
             LastPosition = transform.position;
         }
 
-
-        internal static void AddAutoPinner(GameObject target, string pinName, AutoPins.AutoPinCategory pinCategory)
+        public void Start()
         {
-            var autoPinner = target.GetOrAddComponent<AutoPinner>();
-            autoPinner.PinName = pinName;
-            autoPinner.AutoPinCategory = pinCategory;
-            autoPinner.LastPosition = target.transform.position;
-            Log.LogInfo($"Added AutoPinner with name: {pinName} and category: {pinCategory.ToString()}");
+            InvokeRepeating(nameof(CheckForAutoPinShortcut), InvokeRepeatingTime, InvokeRepeatingTime);
         }
 
+        /// <summary>
+        ///     Trigger autopin from shortcut if enabled and within range.
+        /// </summary>
+        public void CheckForAutoPinShortcut()
+        {
+            if (!DiscoveryPins.Instance.AutoPinShortcutConfigs.Enabled.Value)
+            {
+                return;
+            }
+
+            if (!DiscoveryPins.Instance.AutoPinShortcutConfigs.Shortcut.Value.IsPressed())
+            {
+                return;
+            }
+
+            if (!Player.m_localPlayer || !GameCamera.instance){
+                return;
+            }
+                
+            var distToPlayer = Utils.DistanceXZ(Position, Player.m_localPlayer.transform.position);
+            if (distToPlayer > DiscoveryPins.Instance.AutoPinShortcutConfigs.Range.Value)
+            {
+                return;
+            }
+
+            // check current field of view to get allowable angle deviation
+            // compute direction from camera to AutoPinner
+            // get dot product of direction from camera to AutoPinner and camera look direction
+            var dotTol = Mathf.Acos(Mathf.Deg2Rad * (GameCamera.instance.m_fov / 2f));
+            var posDir = Vector3.Normalize(Position - GameCamera.instance.transform.position);
+            var lookDir = Vector3.Normalize(Player.m_localPlayer.m_lookDir);
+            var dirDot = Vector3.Dot(posDir, lookDir);
+
+            // If dot product is negative then it is in the opposite direction from camera look direction
+            // If dot product is less than dotTol then it is at an angle greater than FoV/2 away from look direction.
+            if (dirDot < 0 || dirDot < dotTol)
+            {
+                return;
+            }
+
+            // Autopinner is within range and within field of view
+            AddAutoPin();
+            
+        }
+        
         public bool TryGetAutoPinConfig(out DiscoveryPins.AutoPinConfig autoPinConfig)
         {
             if (DiscoveryPins.Instance.AutoPinConfigs.TryGetValue(AutoPinCategory, out autoPinConfig))
@@ -69,12 +141,12 @@ namespace DiscoveryPins.Pins
                 return false;
             }
             PinType icon = PinNames.PinNameToType(autoPinConfig.Icon.Value);
-            if (FindPin(this.transform.position, icon, PinName) != null)
+            if (FindPin(Position, icon, PinName) != null)
             {
                 return false;
             }
-            Log.LogInfo($"Adding Auto Pin with name: {PinName}, icon: {autoPinConfig.Icon.Value}, pinType: {icon.ToString()}");
-            AddPin(this.transform.position, icon, PinName);
+            Log.LogDebug($"Adding Auto Pin with name: {PinName}, icon: {autoPinConfig.Icon.Value}, pinType: {icon.ToString()}");
+            AddPin(Position, icon, PinName);
             return true;
         }
 
@@ -83,19 +155,27 @@ namespace DiscoveryPins.Pins
             Minimap.instance.AddPin(pos, type, name ?? "", true, false, 0L);
         }
 
+        /// <summary>
+        ///     Remove auto pin placed by Autopinner.
+        /// </summary>
+        /// <returns></returns>
         public bool RemoveAutoPin()
         {
             if (!TryGetAutoPinIcon(out PinType icon))
             {
                 return false;
             }
-            if (this.transform)
-            {
-                LastPosition = this.transform.position;
-            }
-            return RemovePin(LastPosition, icon, PinName);
+            return RemovePin(Position, icon, PinName);
         }
 
+        /// <summary>
+        ///     Remove any matching pins from the minimap. 
+        ///     If name is provided then only remove a pin if it has that name.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="pinType"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static bool RemovePin(Vector3 pos, PinType pinType = PinType.None, string name = null)
         {
             if (FindPin(pos, pinType, name) is PinData pin)
@@ -106,7 +186,14 @@ namespace DiscoveryPins.Pins
             return false;
         }
 
-
+        /// <summary>
+        ///     Find pin on minimap based on pos and type. 
+        ///     If name is provided then check if it matches the name.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="type"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static PinData FindPin(Vector3 pos, PinType type = PinType.None, string name = null)
         {
             List<(PinData pin, float dis)> pins = new();
@@ -121,28 +208,25 @@ namespace DiscoveryPins.Pins
 
             PinData closest = null;
             float closestDis = float.MaxValue;
-
-            foreach (var pairs in pins)
+            foreach (var (pin, dis) in pins)
             {
-                if (closest == null || pairs.dis < closestDis)
+                if (closest == null || dis < closestDis)
                 {
-                    closest = pairs.pin;
-                    closestDis = pairs.dis;
+                    closest = pin;
+                    closestDis = dis;
                 }
             }
-                
 
-            if (closestDis > 1f)
+            if (closestDis > FindPinPrecision) 
             {
                 return null;
             }
-                
 
             if (!string.IsNullOrEmpty(name) && closest.m_name != name)
             {
                 return null;
             }
-                
+
             return closest;
         }
     }

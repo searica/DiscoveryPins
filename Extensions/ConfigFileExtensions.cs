@@ -74,10 +74,12 @@ namespace DiscoveryPins.Extensions
             AcceptableValueBase acceptVals = null,
             bool synced = true,
             int order = 0,
+            int sectionOrder = 0,
             Action<ConfigEntryBase> drawer = null,
             ConfigurationManagerAttributes configAttributes = null
         )
         {
+            string orderedSectionName = GetOrderedSectionName(section, sectionOrder);
             string extendedDescription = GetExtendedDescription(description, synced);
 
             configAttributes ??= new ConfigurationManagerAttributes();
@@ -89,7 +91,7 @@ namespace DiscoveryPins.Extensions
             }
 
             ConfigEntry<T> configEntry = configFile.Bind(
-                section,
+                orderedSectionName,
                 name,
                 value,
                 new ConfigDescription(
@@ -99,6 +101,15 @@ namespace DiscoveryPins.Extensions
                 )
             );
             return configEntry;
+        }
+
+        internal static string GetOrderedSectionName(string section, int sectionOrder)
+        {
+            if (sectionOrder > 0)
+            {
+                return $"{sectionOrder} - {section}";
+            }
+            return section;
         }
 
         internal static string GetExtendedDescription(string description, bool synchronizedSetting)

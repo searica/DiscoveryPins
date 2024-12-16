@@ -22,13 +22,13 @@ namespace DiscoveryPins.Patches
         public static void PlayerOnDeath_Postfix(Player __instance)
         {
 
-            if (!InvIsEmpty || !DiscoveryPins.Instance.DeathPinConfigs.AutoRemoveEnabled.Value)
+            if (!InvIsEmpty || DiscoveryPins.Instance.DeathPinConfigs.PinWhenInvIsEmpty.Value)
             {
                 return;
             }
 
             var pos = __instance.transform.position;
-            Log.LogInfo($"Negating pin at '{pos.ToString("F0")}' because inventory was empty\n");
+            Log.LogDebug($"Negating pin at '{pos.ToString("F0")}' because inventory was empty\n");
             AutoPinner.RemovePin(pos, PinType.Death);
 
             var pp = Game.instance.GetPlayerProfile();

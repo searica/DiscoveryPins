@@ -26,6 +26,8 @@ Source code is available on Github.
 ### Contributions
 If you would like to provide suggestions, make feature requests, or reports bugs and compatibility issues you can either open an issue on the Github repository or tag me (@searica) with a message on my discord [Searica's Mods](https://discord.gg/sFmGTBYN6n).
 
+Over time I will keep patching more prefabs and improving this mod's features but you'd really like a specific prefab to work better then let me know via one of the methods above. I'm a grad student and have a lot of personal responsibilities on top of that so I can't promise I will always respond quickly, but I do intend to maintain and improve the mod in my free time.
+
 ### Credits
 This mod was inspired by QoLPins by Tekla.
 

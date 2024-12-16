@@ -29,10 +29,17 @@ namespace DiscoveryPins
         internal static ConfigFile ConfigFile;
 
         // Auto Pin hot key set up
-        internal const string autoPinKeySection = "Auto Pin Shortcut";
+        internal const string AutoPinShortcutSection = "Auto Pin Shortcut";
+        internal class AutoPinShortcutConfig
+        {
+            internal ConfigEntry<bool> Enabled;
+            internal ConfigEntry<float> Range;
+            internal ConfigEntry<KeyboardShortcut> Shortcut;
+        }
+        internal AutoPinShortcutConfig AutoPinShortcutConfigs;
 
         // Death pin configs
-        internal const string deathPinSection = "Tombstone Pins";
+        internal const string DeathPinSection = "Auto Pin: Tombstone";
         internal class DeathPinConfig
         {
             internal ConfigEntry<bool> PinWhenInvIsEmpty;
@@ -100,27 +107,67 @@ namespace DiscoveryPins
 
         internal void SetUpConfigEntries()
         {
+            // Auto Pin shortcut configs
+            int sectionCounter = 1;
+            AutoPinShortcutConfigs = new AutoPinShortcutConfig()
+            {
+                Enabled = Config.BindConfig(
+                    AutoPinShortcutSection,
+                    "Enabled",
+                    true,
+                    "Whether to allow using the auto pin shortcut.",
+                    sectionOrder: sectionCounter,
+                    synced: true
+                ),
+                Range = Config.BindConfig(
+                    AutoPinShortcutSection,
+                    "Range",
+                    50f,
+                    "Maximum distance that auto pins can be generated.",
+                    new AcceptableValueRange<float>(5f, 100f),
+                    sectionOrder: sectionCounter,
+                    synced: true
+                ),
+                Shortcut = Config.BindConfig(
+                    AutoPinShortcutSection,
+                    "Shortcut",
+                    new KeyboardShortcut(KeyCode.LeftAlt, KeyCode.LeftShift),
+                    "Shortcut to trigger auto pin.",
+                    sectionOrder: sectionCounter,
+                    synced: false
+                )
+            };
+
+
             // Tombstone configs
+            sectionCounter++;
             DeathPinConfigs = new DeathPinConfig()
             {
                 PinWhenInvIsEmpty = Config.BindConfig(
-                    deathPinSection,
+                    DeathPinSection,
                     "Generate with empty inventory", 
                     true, 
-                    "Death pin will/won't be generated if your inventory was empty."
+                    "Death pin will/won't be generated if your inventory was empty.",
+                    sectionOrder: sectionCounter,
+                    synced: false
                 ),
                 AutoRemoveEnabled = Config.BindConfig(
-                    deathPinSection,
+                    DeathPinSection,
                     "Remove on retrieval",
                     true,
-                    "Death pin be removed automically when tombstone is retrieved."
+                    "Death pin be removed automatically when tombstone is retrieved.",
+                    sectionOrder: sectionCounter,
+                    synced: false
                 )
             };
 
             // Auto pin configs
+            
             foreach (KeyValuePair<AutoPins.AutoPinCategory, Minimap.PinType> pair in AutoPins.DefaultPinTypes)
             {
-                var sectionName = pair.Key.ToString();
+                sectionCounter++;
+                var sectionName = $"{sectionCounter} - Auto Pin: {pair.Key.ToString()}";
+     
                 AutoPinConfigs.Add(
                     pair.Key,
                     new AutoPinConfig()
@@ -129,26 +176,46 @@ namespace DiscoveryPins
                             sectionName,
                             "Enabled",
                             true,
-                            "Whether auto pinning is enabled."
+                            "Whether auto pinning is enabled.",
+                            sectionOrder: sectionCounter,
+                            synced: false
                         ),
                         Icon = Config.BindConfig(
                             sectionName,
                             "Icon",
                             PinNames.PinTypeToName(pair.Value),
                             "Which icon to create the pin with.",
-                            PlaceablePins.AllowedPlaceablePinNames
+                            PlaceablePins.AllowedPlaceablePinNames,
+                            sectionOrder: sectionCounter,
+                            synced: false
                         )
                     }
                 );
             }
 
             // Color configs
-            EnableColors = Config.BindConfig(ColorSection, "Enabled", true, "Whether to enable custom pin colors.");
+            sectionCounter++;
+            EnableColors = Config.BindConfig(
+                ColorSection, 
+                "Enabled",
+                true, 
+                "Whether to enable custom pin colors.",
+                order: 10,
+                sectionOrder: sectionCounter,
+                synced: false
+            );
             foreach (KeyValuePair<Minimap.PinType, string> pair in PinColors.DefaultPinColors) 
             {   
                 PinColorConfigs.Add(
                     pair.Key,
-                    Config.BindConfig(ColorSection, PinNames.PinTypeToName(pair.Key), pair.Value, "Color to use for pins of this type.")
+                    Config.BindConfig(
+                        ColorSection, 
+                        PinNames.PinTypeToName(pair.Key), 
+                        pair.Value, 
+                        "Color to use for pins of this type.",
+                        sectionOrder: sectionCounter,
+                        synced: false
+                    )
                 );
                 PinColorConfigs[pair.Key].SettingChanged += OnColorConfigChanged;
             }
