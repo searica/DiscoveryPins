@@ -9,6 +9,8 @@ using Jotunn.Utils;
 using Jotunn.Managers;
 using DiscoveryPins.Extensions;
 using DiscoveryPins.Helpers;
+using System.Collections.Generic;
+using DiscoveryPins.Pins;
 
 namespace DiscoveryPins
 {
@@ -23,9 +25,45 @@ namespace DiscoveryPins
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
         public const string PluginVersion = "0.1.0";
 
-
         internal static DiscoveryPins Instance;
-        internal static ConfigFile ConfigFile;       
+        internal static ConfigFile ConfigFile;
+
+        // Auto Pin hot key set up
+        internal const string autoPinKeySection = "Auto Pin Shortcut";
+
+        // Death pin configs
+        internal const string deathPinSection = "Tombstone Pins";
+        internal class DeathPinConfig
+        {
+            internal ConfigEntry<bool> PinWhenInvIsEmpty;
+            internal ConfigEntry<bool> AutoRemoveEnabled;
+        }
+        internal DeathPinConfig DeathPinConfigs;
+
+
+        // AutoPin Configs
+        internal class AutoPinConfig
+        {
+            internal ConfigEntry<bool> Enabled;
+            internal ConfigEntry<string> Icon;
+        }
+        internal readonly Dictionary<AutoPins.AutoPinCategory, AutoPinConfig> AutoPinConfigs = new();
+
+
+        // Pin Color Configs
+        internal const string ColorSection = "Pin Colors";
+        internal ConfigEntry<bool> EnableColors;
+        internal readonly Dictionary<Minimap.PinType, ConfigEntry<string>> PinColorConfigs = new();
+        internal static bool ColorConfigsChanged = false;
+
+        /// <summary>
+        ///     Event hook to set whether a config entry
+        ///     for a piece setting has been changed.
+        /// </summary>
+        internal static void OnColorConfigChanged(object obj, EventArgs args)
+        {
+            if (!ColorConfigsChanged) ColorConfigsChanged = true;
+        }
 
         public void Awake()
         {
@@ -34,39 +72,101 @@ namespace DiscoveryPins
             Log.Init(Logger);
 
             Config.Init(PluginGUID, false);
-       
             SetUpConfigEntries();
-
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
-
             Game.isModded = true;
 
-            ConfigFile.SetupWatcher();
+            UpdatePlugin(saveConfig: true, initialUpdate: true);
 
             // Re-initialization after reloading config and don't save since file was just reloaded
+            Config.SetupWatcher();
             ConfigFileExtensions.OnConfigFileReloaded += () =>
             {
-                // Do whatever is needed, currently nothing
+                UpdatePlugin(saveConfig: false);
             };
 
             // Re-initialize after changing config data in-game and trigger a save to disk.
             SynchronizationManager.OnConfigurationWindowClosed += () =>
             {
-                Config.Save();
+                UpdatePlugin(saveConfig: true);
             };
 
             // Re-initialize after getting updated config data and trigger a save to disk.
             SynchronizationManager.OnConfigurationSynchronized += (obj, attr) =>
             {
-                Config.Save();
+                UpdatePlugin(saveConfig: true);
             };
         }
 
-        
-
-        internal static void SetUpConfigEntries()
+        internal void SetUpConfigEntries()
         {
-    
+            // Tombstone configs
+            DeathPinConfigs = new DeathPinConfig()
+            {
+                PinWhenInvIsEmpty = Config.BindConfig(
+                    deathPinSection,
+                    "Generate with empty inventory", 
+                    true, 
+                    "Death pin will/won't be generated if your inventory was empty."
+                ),
+                AutoRemoveEnabled = Config.BindConfig(
+                    deathPinSection,
+                    "Remove on retrieval",
+                    true,
+                    "Death pin be removed automically when tombstone is retrieved."
+                )
+            };
+
+            // Auto pin configs
+            foreach (KeyValuePair<AutoPins.AutoPinCategory, Minimap.PinType> pair in AutoPins.DefaultPinTypes)
+            {
+                var sectionName = pair.Key.ToString();
+                AutoPinConfigs.Add(
+                    pair.Key,
+                    new AutoPinConfig()
+                    {
+                        Enabled = Config.BindConfig(
+                            sectionName,
+                            "Enabled",
+                            true,
+                            "Whether auto pinning is enabled."
+                        ),
+                        Icon = Config.BindConfig(
+                            sectionName,
+                            "Icon",
+                            PinNames.PinTypeToName(pair.Value),
+                            "Which icon to create the pin with.",
+                            PlaceablePins.AllowedPlaceablePinNames
+                        )
+                    }
+                );
+            }
+
+            // Color configs
+            EnableColors = Config.BindConfig(ColorSection, "Enabled", true, "Whether to enable custom pin colors.");
+            foreach (KeyValuePair<Minimap.PinType, string> pair in PinColors.DefaultPinColors) 
+            {   
+                PinColorConfigs.Add(
+                    pair.Key,
+                    Config.BindConfig(ColorSection, PinNames.PinTypeToName(pair.Key), pair.Value, "Color to use for pins of this type.")
+                );
+                PinColorConfigs[pair.Key].SettingChanged += OnColorConfigChanged;
+            }
+           
+        }
+
+        private void UpdatePlugin(bool saveConfig = true, bool initialUpdate = false)
+        {
+            if (ColorConfigsChanged || initialUpdate)
+            {
+                PinColors.UpdatePinColorMap();
+                ColorConfigsChanged = false;
+            }
+            
+            if (saveConfig)
+            {
+                Config.Save();
+            }
         }
 
         public void OnDestroy()

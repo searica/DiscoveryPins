@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<NuGetPackages>$(UserProfile)\.nuget\packages</NuGetPackages>
-		<JotunnProps>$(NuGetPackages)\jotunnlib\2.22.0\build\JotunnLib.props</JotunnProps>
+		<JotunnProps>$(NuGetPackages)\jotunnlib\2.20.0\build\JotunnLib.props</JotunnProps>
 	</PropertyGroup>
 
-	<!--<Import Project="environment.props" Condition="Exists('environment.props')" />-->
-	<Import Project="$(JotunnProps)" Condition="Exists('$(JotunnProps)')" />
 	<Import Project="ModPackageTool.targets" Condition="Exists('ModPackageTool.targets')" />
 
 	<PropertyGroup>
-		<TargetFramework>net462</TargetFramework>
+		<TargetFramework>net48</TargetFramework>
 		<OutputType>Library</OutputType>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<LangVersion>10.0</LangVersion>
 	</PropertyGroup>
@@ -58,6 +57,8 @@
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<Folder Include="Components\" />
+		<Folder Include="Configs\" />
 		<Folder Include="Publish\Nexus\" />
 		<Folder Include="Publish\ThunderStore\" />
 	</ItemGroup>
