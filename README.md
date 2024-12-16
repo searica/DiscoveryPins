@@ -20,7 +20,7 @@ My mods will always be free to use but if you feel like saying thanks you can ti
 ## Source Code
 Source code is available on Github.
 
-| Github Repository: | <img height="18" src="https://github.githubassets.com/favicons/favicon-dark.svg"></img><a href="https://github.com/searica/MoreVanillaBuildPrefabs"> MoreVanillaBuildPrefabs</a> |
+| Github Repository: | <img height="18" src="https://github.githubassets.com/favicons/favicon-dark.svg"></img><a href="https://github.com/searica/DiscoveryPins"> DiscoveryPins</a> |
 |-----------|---------------|
 
 ### Contributions
