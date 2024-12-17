@@ -8,6 +8,22 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.1.1</td>
+			<td align="left">
+				<ul>
+					<li>Changed default player pin color to white.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">0.1.1</td>
+			<td align="left">
+				<ul>
+					<li>Fixed manifest description.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.1.0</td>
 			<td align="left">
 				<ul>

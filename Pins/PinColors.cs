@@ -44,7 +44,7 @@ namespace DiscoveryPins.Pins
             { PinType.Icon2, LightDusk },  // Hammer
             { PinType.Icon3, Red },  // Ball
             { PinType.Shout,  White },
-            { PinType.Player,  Red },
+            { PinType.Player,  White },
             { PinType.Boss, Purple },
             { PinType.RandomEvent, White },
             { PinType.Ping, White },
