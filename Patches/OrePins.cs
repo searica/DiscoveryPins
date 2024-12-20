@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using DiscoveryPins.Pins;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using DiscoveryPins.Extensions;
 
 
@@ -13,44 +12,21 @@ namespace DiscoveryPins.Patches
     internal static class OrePins
     {
         private static readonly List<string> OreNames = new () { "Tin", "Copper", "Silver" };
-        //private static Dictionary<string, GameObject> OrePrefabs = new();
-        private static HashSet<string> OrePrefabNames = new();
+        private static readonly HashSet<string> OrePrefabNames = new();
 
         /// <summary>
-        ///     Add Autopinner component to all ores in the game via editing their prefabs.
+        ///     Adds AutoPinner to prefab if it is actually Ore and not already modified.
         /// </summary>
-        [HarmonyPrefix]
-        [HarmonyPriority(Priority.First)]
-        [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.Start))]
-        private static void ZoneSystem_Start_Prefix()
+        /// <param name="prefab"></param>
+        internal static void TryAddAutoPinnerToOre(GameObject prefab)
         {
-            // If loading into game world and prefabs have not been added
-            if (SceneManager.GetActiveScene().name != "main")
+            if (IsOrePrefab(prefab, out string OreName) && !OrePrefabNames.Contains(prefab.name))
             {
-                return;
-            }
-
-            // Get prefabs that are mineable ores and modify them
-            foreach (var prefab in ZNetScene.instance.m_prefabs)
-            {
-                if (!prefab.transform.parent && IsOrePrefab(prefab, out string OreName) && !OrePrefabNames.Contains(prefab.name))
-                {
-                    OrePrefabNames.Add(prefab.name);
-                    AutoPinner.AddAutoPinner(prefab, OreName, AutoPins.AutoPinCategory.Ore);
-                }
+                OrePrefabNames.Add(prefab.name);
+                AutoPinner.AddAutoPinner(prefab, OreName, AutoPins.AutoPinCategory.Ore);
             }
         }
 
-        private static void AddAutoPinnerIfOre(GameObject gameObject)
-        {
-            if (gameObject.GetComponent<Destructible>() || gameObject.GetComponent<MineRock5>())
-            {
-                if (TryGetOreName(gameObject, out string OreName))
-                {
-                    AutoPinner.AddAutoPinner(gameObject, OreName, AutoPins.AutoPinCategory.Ore);
-                }
-            }
-        }
 
         /// <summary>
         ///     Check if it is an Ore prefab and get Ore name
@@ -89,20 +65,6 @@ namespace DiscoveryPins.Patches
             OreName = null;
             return false;
         }
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(Destructible), nameof(Destructible.Awake))]
-        //public static void Destructible_Awake_Postfix(Destructible __instance)
-        //{
-        //    AddAutoPinnerIfOre(__instance.gameObject);
-        //}
-
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(MineRock5), nameof(MineRock5.Awake))]
-        //public static void MineRock5_Awake_Postfix(MineRock5 __instance)
-        //{
-        //    AddAutoPinnerIfOre(__instance.gameObject);
-        //}
 
         /// <summary>
         ///     Trigger autopin when damaging the mineable rock.
