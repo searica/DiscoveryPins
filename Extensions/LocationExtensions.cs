@@ -1,15 +1,15 @@
-﻿using BepInEx;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using BepInEx;
+using UnityEngine;
 using static Mono.Security.X509.X520;
+
 
 namespace DiscoveryPins.Extensions
 {
     internal static class LocationExtensions
     {
+        private const string EntranceName = "GateWay";
+        private const string ExteriorName = "exterior";
 
         /// <summary>
         ///     Try getting entrance to interior and interior name.
@@ -21,23 +21,53 @@ namespace DiscoveryPins.Extensions
         {
             teleport = null;
             name = string.Empty;
+
             if (!location.m_hasInterior)
             {
                 return false;
             }
 
-            for (int i = 0; i < location.transform.childCount; i++)
+            if (TryGetTeleportEntrance(location.transform, out teleport, out name))
             {
-                var child = location.transform.GetChild(i);
-                if (child.TryGetComponent(out teleport) && teleport is not null)
+                return true;
+            }
+
+            // Check for a Gateway nested under the "exterior" child
+            Transform exterior = location.transform.Find(ExteriorName);
+            if (exterior && TryGetTeleportEntrance(exterior, out teleport, out name))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Tries to get the first top level child with a Teleport component 
+        ///     and the enter text for that Teleport component.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="entrance"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        internal static bool TryGetTeleportEntrance(Transform parent, out Teleport entrance, out string name)
+        {
+            name = string.Empty;
+            entrance = null;
+
+            // Check for a top level exterior Gateway with teleporting
+            for (int i = 0; i < parent.transform.childCount; i++)
+            {
+                var child = parent.transform.GetChild(i);
+                if (child.TryGetComponent(out entrance) && entrance is not null)
                 {
-                    if (!teleport.m_enterText.IsNullOrWhiteSpace())
+                    if (!entrance.m_enterText.IsNullOrWhiteSpace())
                     {
-                        name = teleport.m_enterText;
+                        name = entrance.m_enterText;
                     }
                     return true;
                 }
-            }
+            }   
             return false;
         }
 
@@ -86,8 +116,5 @@ namespace DiscoveryPins.Extensions
 
             return false;
         }
-     
-
-        
     }
 }
