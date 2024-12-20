@@ -7,10 +7,10 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Jotunn.Utils;
 using Jotunn.Managers;
-using DiscoveryPins.Extensions;
 using DiscoveryPins.Helpers;
 using System.Collections.Generic;
 using DiscoveryPins.Pins;
+using DiscoveryPins.Configs;
 
 namespace DiscoveryPins
 {
@@ -23,7 +23,7 @@ namespace DiscoveryPins
         public const string PluginName = "DiscoveryPins";
         internal const string Author = "Searica";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "0.1.2";
+        public const string PluginVersion = "0.2.0";
 
         internal static DiscoveryPins Instance;
         internal static ConfigFile ConfigFile;

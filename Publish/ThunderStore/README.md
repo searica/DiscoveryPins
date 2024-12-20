@@ -6,9 +6,13 @@ Can be used as a purely client side mod or it can be installed on the server to 
 - Configure pin colors.
 - Automatically pin dungeons when you enter them (configurable).
 - Automatically pin ore when you damage it (configurable).
+- Automatically pin portals when building or interacting with them (configurable).
+	- If the portal has a tag then it names the pin after the tag.
+	- Updates pin names when you change the portal tag.
+	- Will fail to remove the old pin if you change the pin type for portals and then change the portal tag.
 - Automatically remove death pins when retrieving your tombstone (configurable).
 - Configure whether to generate death pins when inventory is empty.
-- Configurable keyboard shortcut to automatically pin things within your field of view that are configured to be automatically pinned.
+- Configurable keyboard shortcut to automatically pin things within your field of view or very close to your character that are configured to be automatically pinned.
 - Synced settings for whether the keyboard shortcut is enabled and how far away it can trigger automatic pins.
 
 ## Donations/Tips
