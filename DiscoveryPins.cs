@@ -131,7 +131,7 @@ namespace DiscoveryPins
                 Shortcut = Config.BindConfig(
                     AutoPinShortcutSection,
                     "Shortcut",
-                    new KeyboardShortcut(KeyCode.LeftAlt, KeyCode.LeftShift),
+                    new KeyboardShortcut(KeyCode.Mouse1, KeyCode.LeftShift),
                     "Shortcut to trigger auto pin.",
                     sectionOrder: sectionCounter,
                     synced: false
