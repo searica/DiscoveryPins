@@ -2,15 +2,16 @@
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
+using DiscoveryPins.Extensions;
 
-namespace DiscoveryPins.Extensions
+namespace DiscoveryPins.Configs
 {
 
     /// <summary>
     ///     Extends ConfigFile with a convenience method to bind config entries with less boilerplate code 
     ///     and explicitly expose commonly used configuration manager attributes.
     /// </summary>
-    public static class ConfigFileExtensions
+    public static class ConfigFileManager
     {
         internal static string ConfigFileName;
         internal static string ConfigFileFullPath;

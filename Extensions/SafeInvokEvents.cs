@@ -6,7 +6,7 @@ namespace DiscoveryPins.Extensions
     /// <summary>
     ///     Helper class for C# Events.
     /// </summary>
-    internal static class EventExtensions
+    internal static class SafeInvokEvents
     {
         /// <summary>
         ///     try/catch the delegate chain so that it doesn't break on the first failing Delegate.
