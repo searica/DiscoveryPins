@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using static Minimap;
 
 namespace DiscoveryPins.Pins
@@ -11,14 +9,16 @@ namespace DiscoveryPins.Pins
         {
             Dungeon,
             Location,
-            Ore
+            Ore,
+            Portal
         }
 
         internal static Dictionary<AutoPinCategory, PinType> DefaultPinTypes = new()
         {
             { AutoPinCategory.Dungeon, PinType.Icon4 }, // Cave
             { AutoPinCategory.Location, PinType.Icon0  }, // Fireplace
-            { AutoPinCategory.Ore, PinType.Icon2 } // Hammer
+            { AutoPinCategory.Ore, PinType.Icon2 }, // Hammer
+            { AutoPinCategory.Portal, PinType.Icon3 } // Ball
         };     
     }
 }
