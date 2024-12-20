@@ -87,7 +87,7 @@ namespace DiscoveryPins
 
             // Re-initialization after reloading config and don't save since file was just reloaded
             Config.SetupWatcher();
-            ConfigFileExtensions.OnConfigFileReloaded += () =>
+            ConfigFileManager.OnConfigFileReloaded += () =>
             {
                 UpdatePlugin(saveConfig: false);
             };
