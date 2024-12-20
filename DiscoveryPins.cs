@@ -177,7 +177,6 @@ namespace DiscoveryPins
                             "Enabled",
                             true,
                             "Whether auto pinning is enabled.",
-                            sectionOrder: sectionCounter,
                             synced: false
                         ),
                         Icon = Config.BindConfig(
@@ -186,7 +185,6 @@ namespace DiscoveryPins
                             PinNames.PinTypeToName(pair.Value),
                             "Which icon to create the pin with.",
                             PlaceablePins.AllowedPlaceablePinNames,
-                            sectionOrder: sectionCounter,
                             synced: false
                         )
                     }
