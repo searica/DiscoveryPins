@@ -10,12 +10,14 @@ namespace DiscoveryPins.Pins
 {
     internal class AutoPinner : MonoBehaviour
     {
-        
+        private const float CloseEnoughXZ = 5f;
+        private const float CloseEnoughY = 15f;
         private const float FindPinPrecision = 1.0f;
         private const float InvokeRepeatingTime = 0.1f;
-
-        // These need to be public for their values to be copied when a prefab is instantiated.
         public string PinName;
+        private bool AutoPinNameChanged = false;
+
+
         public AutoPins.AutoPinCategory AutoPinCategory;
         private Vector3 LastPosition;
         public Vector3 Position {  
@@ -58,6 +60,19 @@ namespace DiscoveryPins.Pins
         }
 
         /// <summary>
+        ///     Update PinName and flag the name as changed if value changed.
+        /// </summary>
+        /// <param name="pinName"></param>
+        public void UpdatePinName(string pinName)
+        {
+            AutoPinNameChanged = pinName != PinName;
+            if (AutoPinNameChanged)
+            {
+                PinName = pinName;
+            }
+        }
+
+        /// <summary>
         ///     Trigger autopin from shortcut if enabled and within range.
         /// </summary>
         public void CheckForAutoPinShortcut()
@@ -75,12 +90,17 @@ namespace DiscoveryPins.Pins
             if (!Player.m_localPlayer || !GameCamera.instance){
                 return;
             }
-                
-            var distToPlayer = Utils.DistanceXZ(Position, Player.m_localPlayer.transform.position);
+
+            var playerPosition = Player.m_localPlayer.transform.position;
+            float distToPlayer = Utils.DistanceXZ(Position, playerPosition);
             if (distToPlayer > DiscoveryPins.Instance.AutoPinShortcutConfigs.Range.Value)
             {
                 return;
             }
+
+            // Check if the player is standing very close to it and it is a bit above or below them
+            // (for stuff like Copper Ore)
+            bool isCloseEnough = distToPlayer <= CloseEnoughXZ && Mathf.Abs(Position.y - playerPosition.y) <= CloseEnoughY;
 
             // check current field of view to get allowable angle deviation
             // compute direction from camera to AutoPinner
@@ -92,7 +112,7 @@ namespace DiscoveryPins.Pins
 
             // If dot product is negative then it is in the opposite direction from camera look direction
             // If dot product is less than dotTol then it is at an angle greater than FoV/2 away from look direction.
-            if (dirDot < 0 || dirDot < dotTol)
+            if ((dirDot < 0 || dirDot < dotTol) && !isCloseEnough)
             {
                 return;
             }
@@ -141,10 +161,23 @@ namespace DiscoveryPins.Pins
                 return false;
             }
             PinType icon = PinNames.PinNameToType(autoPinConfig.Icon.Value);
+
+            if (AutoPinNameChanged)
+            {
+                var oldPin = FindPin(Position, icon, null);
+                if (oldPin != null)
+                {
+                    Log.LogDebug($"Removing old pin with name {oldPin.m_NamePinData.PinNameText} because auto pin name changed.");
+                    Minimap.instance.RemovePin(oldPin);
+                }
+                AutoPinNameChanged = false;
+            }
+
             if (FindPin(Position, icon, PinName) != null)
             {
                 return false;
             }
+
             Log.LogDebug($"Adding Auto Pin with name: {PinName}, icon: {autoPinConfig.Icon.Value}, pinType: {icon.ToString()}");
             AddPin(Position, icon, PinName);
             return true;
