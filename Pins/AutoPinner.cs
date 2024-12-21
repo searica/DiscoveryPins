@@ -128,6 +128,14 @@ namespace DiscoveryPins.Pins
                     new(bounds.max.x, bounds.min.y, bounds.max.z),
                     new(bounds.max.x, bounds.max.y, bounds.min.z),
 
+                    // Face center points
+                    new(bounds.min.x, boundsMid.y, boundsMid.z),
+                    new(bounds.max.x, boundsMid.y, boundsMid.z),
+                    new(boundsMid.x, bounds.min.y, boundsMid.z),
+                    new(boundsMid.x, bounds.max.y, boundsMid.z),
+                    new(boundsMid.x, boundsMid.y, bounds.min.z),
+                    new(boundsMid.x, boundsMid.y, bounds.max.z),
+
                     // Mid edge points
                     new(boundsMid.x, bounds.max.y,bounds.max.z),
                     new(boundsMid.x, bounds.min.y,bounds.max.z),
