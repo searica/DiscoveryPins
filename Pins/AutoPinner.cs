@@ -63,13 +63,15 @@ namespace DiscoveryPins.Pins
         ///     Update PinName and flag the name as changed if value changed.
         /// </summary>
         /// <param name="pinName"></param>
-        public void UpdatePinName(string pinName)
+        public void UpdatePinName(string pinName, bool markAsChanged = true)
         {
             AutoPinNameChanged = pinName != PinName;
             if (AutoPinNameChanged)
             {
                 PinName = pinName;
             }
+            // Force to be false is markAsChanged is false.
+            AutoPinNameChanged = markAsChanged && AutoPinNameChanged;
         }
 
         /// <summary>

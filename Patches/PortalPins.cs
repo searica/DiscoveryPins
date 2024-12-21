@@ -37,6 +37,32 @@ namespace DiscoveryPins.Patches
             return prefab.GetComponent<TeleportWorld>();
         }
 
+
+        /// <summary>
+        ///     Update AutoPin name to use portal tag when portal is first loaded.
+        ///     Also pin portals you built yourself when they load in.
+        /// </summary>
+        /// <param name="__instance"></param>
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(TeleportWorld), nameof(TeleportWorld.Awake))]
+        internal static void TeleportWorld_Awake_Postfix(TeleportWorld __instance)
+        {
+
+            if (!__instance || !__instance.TryGetComponent(out AutoPinner autoPinner))
+            {
+                return;
+            }
+
+            autoPinner.UpdatePinName(GetPortalAutoPinName(__instance), markAsChanged: false);
+
+            if (!__instance.TryGetComponent(out Piece piece) && !piece.IsCreator())
+            {
+                return;
+            }
+
+            autoPinner.AddAutoPin();
+        }
+
         /// <summary>
         ///     Update AutoPin name whenever portal tag is changed.
         /// </summary>
@@ -61,27 +87,6 @@ namespace DiscoveryPins.Patches
         {
             string pinName = teleportWorld.GetText();
             return string.IsNullOrWhiteSpace(pinName) ? DefaultPortalName : pinName;
-        }
-
-        /// <summary>
-        ///     Pin portal when you build one.
-        /// </summary>
-        /// <param name="__instance"></param>
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(TeleportWorld), nameof(TeleportWorld.Awake))]
-        internal static void TeleportWorld_Awake_Postfix(TeleportWorld __instance)
-        {
-            if (!__instance || !__instance.TryGetComponent(out AutoPinner autoPinner))
-            {
-                return;
-            }
-
-            if (!__instance.TryGetComponent(out Piece piece) && !piece.IsCreator())
-            {
-                return;
-            }
-
-            autoPinner.AddAutoPin();
         }
 
         /// <summary>
