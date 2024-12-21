@@ -1,6 +1,4 @@
-﻿using BepInEx.Configuration;
-using Jotunn;
-using MonoMod.Utils;
+﻿using Jotunn;
 using System.Collections.Generic;
 using UnityEngine;
 using static DiscoveryPins.DiscoveryPins;
@@ -10,8 +8,8 @@ namespace DiscoveryPins.Pins
 {
     internal class AutoPinner : MonoBehaviour
     {
-        private const float CloseEnoughXZ = 5f;
-        private const float CloseEnoughY = 15f;
+        public const float CloseEnoughXZ = 5f;
+        public const float CloseEnoughY = 5f;
         private const float FindPinPrecision = 1.0f;
         private const float InvokeRepeatingTime = 0.1f;
         public string PinName;
@@ -93,35 +91,112 @@ namespace DiscoveryPins.Pins
                 return;
             }
 
+            // check current field of view to get allowable angle deviation
+            var dotTol = Mathf.Acos(Mathf.Deg2Rad * (GameCamera.instance.m_fov / 2f));
             var playerPosition = Player.m_localPlayer.transform.position;
-            float distToPlayer = Utils.DistanceXZ(Position, playerPosition);
+            var lookDir = Player.m_localPlayer.m_lookDir;
+
+            // Get bounding points via mesh renderer if one is present.
+            MeshRenderer meshRenderer = null;
+            if (this.TryGetComponent(out MineRock5 mineRock5) && mineRock5.m_meshRenderer)
+            {
+                meshRenderer = mineRock5.m_meshRenderer;
+            }
+            else if (this.GetComponent<Destructible>())
+            {
+                meshRenderer = this.GetComponentInChildren<MeshRenderer>();
+            }
+
+            // Get points to check for visibilty
+            Vector3[] pointsToCheck;
+            if (meshRenderer != null && meshRenderer.isVisible)
+            {
+                var bounds = meshRenderer.bounds;
+                var boundsMid = bounds.min + ((bounds.max - bounds.min) / 2f);
+                pointsToCheck = new[]
+                {
+                    Position,
+                    bounds.center,
+
+                    // Vertices
+                    bounds.min,
+                    bounds.max,
+                    new(bounds.min.x, bounds.min.y, bounds.max.z),
+                    new(bounds.min.x, bounds.max.y, bounds.min.z),
+                    new(bounds.max.x, bounds.min.y, bounds.min.z),
+                    new(bounds.min.x, bounds.max.y, bounds.max.z),
+                    new(bounds.max.x, bounds.min.y, bounds.max.z),
+                    new(bounds.max.x, bounds.max.y, bounds.min.z),
+
+                    // Mid edge points
+                    new(boundsMid.x, bounds.max.y,bounds.max.z),
+                    new(boundsMid.x, bounds.min.y,bounds.max.z),
+                    new(boundsMid.x, bounds.max.y,bounds.min.z),
+                    new(boundsMid.x, bounds.min.y,bounds.min.z),
+
+                    new(bounds.max.x, boundsMid.y, bounds.max.z),
+                    new(bounds.min.x, boundsMid.y, bounds.max.z),
+                    new(bounds.max.x, boundsMid.y, bounds.min.z),
+                    new(bounds.min.x, boundsMid.y, bounds.min.z),
+         
+                    new(bounds.max.x, bounds.max.y, boundsMid.z),
+                    new(bounds.min.x, bounds.max.y, boundsMid.z),
+                    new(bounds.max.x, bounds.min.y, boundsMid.z),
+                    new(bounds.min.x, bounds.min.y, boundsMid.z),
+                };
+            }
+            else
+            {
+                pointsToCheck = new[] { Position };
+            }
+            
+            // Check all points of interest to see if they are being looked at or are close enough
+            foreach (var point in pointsToCheck)
+            {
+                if (IsPointVisibleOrCloseEnough(point, playerPosition, lookDir, dotTol))
+                {
+                    AddAutoPin();
+                    return;
+                }
+            }
+        }
+
+
+        /// <summary>
+        ///     Rough check if the point is within camera cone or close enough.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="playerPosition"></param>
+        /// <param name="lookDir"></param>
+        /// <param name="dotTolerance"></param>
+        /// <returns></returns>
+        private bool IsPointVisibleOrCloseEnough(Vector3 pos, Vector3 playerPosition, Vector3 lookDir, float dotTolerance)
+        {
+            float distToPlayer = Utils.DistanceXZ(pos, playerPosition);
             if (distToPlayer > DiscoveryPins.Instance.AutoPinShortcutConfigs.Range.Value)
             {
-                return;
+                return false;
             }
 
             // Check if the player is standing very close to it and it is a bit above or below them
             // (for stuff like Copper Ore)
             bool isCloseEnough = distToPlayer <= CloseEnoughXZ && Mathf.Abs(Position.y - playerPosition.y) <= CloseEnoughY;
 
-            // check current field of view to get allowable angle deviation
             // compute direction from camera to AutoPinner
             // get dot product of direction from camera to AutoPinner and camera look direction
-            var dotTol = Mathf.Acos(Mathf.Deg2Rad * (GameCamera.instance.m_fov / 2f));
-            var posDir = Vector3.Normalize(Position - GameCamera.instance.transform.position);
-            var lookDir = Vector3.Normalize(Player.m_localPlayer.m_lookDir);
+            lookDir = Vector3.Normalize(lookDir);
+            var posDir = Vector3.Normalize(pos - GameCamera.instance.transform.position);
             var dirDot = Vector3.Dot(posDir, lookDir);
 
             // If dot product is negative then it is in the opposite direction from camera look direction
             // If dot product is less than dotTol then it is at an angle greater than FoV/2 away from look direction.
-            if ((dirDot < 0 || dirDot < dotTol) && !isCloseEnough)
+            if ((dirDot < 0 || dirDot < dotTolerance) && !isCloseEnough)
             {
-                return;
+                return false;
             }
 
-            // Autopinner is within range and within field of view
-            AddAutoPin();
-            
+            return true;
+
         }
         
         public bool TryGetAutoPinConfig(out DiscoveryPins.AutoPinConfig autoPinConfig)
