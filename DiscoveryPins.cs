@@ -23,7 +23,7 @@ namespace DiscoveryPins
         public const string PluginName = "DiscoveryPins";
         internal const string Author = "Searica";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "0.2.0";
+        public const string PluginVersion = "0.2.1";
 
         internal static DiscoveryPins Instance;
         internal static ConfigFile ConfigFile;

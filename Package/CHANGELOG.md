@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.2.1</td>
+			<td align="left">
+				<ul>
+					<li>Fixed issue regarding portal pins being named incorrectly.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.2.0</td>
 			<td align="left">
 				<ul>
