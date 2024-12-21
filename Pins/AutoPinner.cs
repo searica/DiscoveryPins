@@ -109,8 +109,14 @@ namespace DiscoveryPins.Pins
 
             // Get points to check for visibilty
             Vector3[] pointsToCheck;
-            if (meshRenderer != null && meshRenderer.isVisible)
+            if (meshRenderer != null)
             {
+                if (!meshRenderer.isVisible)
+                {
+                    // only auto-pin if it's actually being rendered
+                    return;
+                }
+
                 var bounds = meshRenderer.bounds;
                 var boundsMid = bounds.min + ((bounds.max - bounds.min) / 2f);
                 pointsToCheck = new[]
