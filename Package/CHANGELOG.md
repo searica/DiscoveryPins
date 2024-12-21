@@ -8,6 +8,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.2.2</td>
+			<td align="left">
+				<ul>
+					<li>Improved detection of if you are looking at things like large ore deposits.</li>
+					<li>Reduced default range of auto-pin shortcut and reduced maximum range. This was needed due to improved detection.</li>
+					<li>Reduced the vertical distance allowance for checking if something is "close enough" to avoid trivailizing find things underground.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.2.1</td>
 			<td align="left">
 				<ul>
