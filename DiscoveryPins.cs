@@ -122,9 +122,9 @@ namespace DiscoveryPins
                 Range = Config.BindConfig(
                     AutoPinShortcutSection,
                     "Range",
-                    50f,
+                    20f,
                     "Maximum distance that auto pins can be generated.",
-                    new AcceptableValueRange<float>(5f, 100f),
+                    new AcceptableValueRange<float>(AutoPinner.CloseEnoughXZ, 50f),
                     sectionOrder: sectionCounter,
                     synced: true
                 ),
