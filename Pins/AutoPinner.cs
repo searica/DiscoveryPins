@@ -117,13 +117,17 @@ namespace DiscoveryPins.Pins
                 }
                  
                 var bounds = meshRenderer.bounds;
-                var boundsMid = bounds.min + ((bounds.max - bounds.min) / 2f);
+                var bounds0p25 = bounds.min + (bounds.size / 4f);
+                var boundsMid = bounds.min + (bounds.size / 2f);
+                var bounds0p75 = bounds.min + (3f * bounds.size / 4f);
+
                 pointsToCheck = new[]
                 {
+                    // center (2 pts)
                     Position,
                     bounds.center,
 
-                    // Vertices
+                    // Vertices (6 pts)
                     bounds.min,
                     bounds.max,
                     new(bounds.min.x, bounds.min.y, bounds.max.z),
@@ -133,7 +137,7 @@ namespace DiscoveryPins.Pins
                     new(bounds.max.x, bounds.min.y, bounds.max.z),
                     new(bounds.max.x, bounds.max.y, bounds.min.z),
 
-                    // Face center points
+                    // Face center points (6 pts)
                     new(bounds.min.x, boundsMid.y, boundsMid.z),
                     new(bounds.max.x, boundsMid.y, boundsMid.z),
                     new(boundsMid.x, bounds.min.y, boundsMid.z),
@@ -141,7 +145,7 @@ namespace DiscoveryPins.Pins
                     new(boundsMid.x, boundsMid.y, bounds.min.z),
                     new(boundsMid.x, boundsMid.y, bounds.max.z),
 
-                    // Mid edge points
+                    // Mid edge points (12 pts)
                     new(boundsMid.x, bounds.max.y,bounds.max.z),
                     new(boundsMid.x, bounds.min.y,bounds.max.z),
                     new(boundsMid.x, bounds.max.y,bounds.min.z),
@@ -156,6 +160,37 @@ namespace DiscoveryPins.Pins
                     new(bounds.min.x, bounds.max.y, boundsMid.z),
                     new(bounds.max.x, bounds.min.y, boundsMid.z),
                     new(bounds.min.x, bounds.min.y, boundsMid.z),
+
+                    // Diagonal face points (24 pts)
+                    new(bounds0p25.x, bounds.max.y, bounds0p25.z),
+                    new(bounds0p75.x, bounds.max.y, bounds0p25.z),
+                    new(bounds0p25.x, bounds.max.y, bounds0p75.z),
+                    new(bounds0p75.x, bounds.max.y, bounds0p75.z),
+
+                    new(bounds0p25.x, bounds.min.y, bounds0p25.z),
+                    new(bounds0p75.x, bounds.min.y, bounds0p25.z),
+                    new(bounds0p25.x, bounds.min.y, bounds0p75.z),
+                    new(bounds0p75.x, bounds.min.y, bounds0p75.z),
+
+                    new(bounds.max.x, bounds0p25.y, bounds0p25.z),
+                    new(bounds.max.x, bounds0p75.y, bounds0p25.z),
+                    new(bounds.max.x, bounds0p25.y, bounds0p75.z),
+                    new(bounds.max.x, bounds0p75.y, bounds0p75.z),
+
+                    new(bounds.min.x, bounds0p25.y, bounds0p25.z),
+                    new(bounds.min.x, bounds0p75.y, bounds0p25.z),
+                    new(bounds.min.x, bounds0p25.y, bounds0p75.z),
+                    new(bounds.min.x, bounds0p75.y, bounds0p75.z),
+
+                    new(bounds0p25.x, bounds0p25.y, bounds.max.z),
+                    new(bounds0p75.x, bounds0p25.y, bounds.max.z),
+                    new(bounds0p25.x, bounds0p75.y, bounds.max.z),
+                    new(bounds0p75.x, bounds0p75.y, bounds.max.z),
+
+                    new(bounds0p25.x, bounds0p25.y, bounds.min.z),
+                    new(bounds0p75.x, bounds0p25.y, bounds.min.z),
+                    new(bounds0p25.x, bounds0p75.y, bounds.min.z),
+                    new(bounds0p75.x, bounds0p75.y, bounds.min.z),
                 };
             }
             else
