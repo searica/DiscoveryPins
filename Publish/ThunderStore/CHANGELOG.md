@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.2.3</td>
+			<td align="left">
+				<ul>
+					<li>Detect whether points that are being checked are underground and prevent auto-pinning if they are.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.2.2</td>
 			<td align="left">
 				<ul>
