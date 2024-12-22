@@ -103,7 +103,7 @@ namespace DiscoveryPins.Patches
         }
 
         /// <summary>
-        ///     Trigger auto pin is possible.
+        ///     Trigger auto pin if possible.
         /// </summary>
         /// <param name="teleportWorld"></param>
         private static void TriggerAutoPinPortal(TeleportWorld teleportWorld)
