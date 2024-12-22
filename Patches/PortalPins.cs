@@ -71,11 +71,10 @@ namespace DiscoveryPins.Patches
         [HarmonyPatch(typeof(TeleportWorld), nameof(TeleportWorld.RPC_SetTag))]
         internal static void TeleportWorld_RPC_SetTag_Postfix(TeleportWorld __instance)
         {
-            if (!__instance || !__instance.TryGetComponent(out AutoPinner autoPinner))
+            if (__instance && __instance.TryGetComponent(out AutoPinner autoPinner))
             {
-                return;
+                autoPinner.UpdatePinName(GetPortalAutoPinName(__instance));
             }
-            autoPinner.UpdatePinName(GetPortalAutoPinName(__instance));
         }
 
         /// <summary>
@@ -119,11 +118,10 @@ namespace DiscoveryPins.Patches
         /// <param name="teleportWorld"></param>
         private static void TriggerAutoPinPortal(TeleportWorld teleportWorld)
         {
-            if (!teleportWorld || !teleportWorld.TryGetComponent(out AutoPinner autoPinner))
+            if (teleportWorld && teleportWorld.TryGetComponent(out AutoPinner autoPinner))
             {
-                return;
+                autoPinner.AddAutoPin();
             }
-            autoPinner.AddAutoPin();
         }
     }
 }
