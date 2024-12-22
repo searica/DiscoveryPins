@@ -226,16 +226,6 @@ namespace DiscoveryPins.Pins
                 return false;
             }
 
-            // Check if point is underground
-            if (ZoneSystem.instance)
-            {
-                var groundHeight = ZoneSystem.instance.GetGroundHeight(pos);
-                if (pos.y < groundHeight - 1f)
-                {
-                    return false;
-                }
-            }
-
             // Check if the player is standing very close to it and it is a bit above or below them
             bool isCloseEnough = distToPlayer <= CloseEnoughXZ && Mathf.Abs(Position.y - playerPosition.y) <= CloseEnoughY;
 
@@ -252,8 +242,17 @@ namespace DiscoveryPins.Pins
                 return false;
             }
 
-            return true;
+            // Check if point is underground after determining if it's close enough
+            if (ZoneSystem.instance)
+            {
+                var groundHeight = ZoneSystem.instance.GetGroundHeight(pos);
+                if (pos.y < groundHeight - 1f)
+                {
+                    return false;
+                }
+            }
 
+            return true;
         }
         
         public bool TryGetAutoPinConfig(out DiscoveryPins.AutoPinConfig autoPinConfig)
