@@ -47,20 +47,10 @@ namespace DiscoveryPins.Patches
         [HarmonyPatch(typeof(TeleportWorld), nameof(TeleportWorld.Awake))]
         internal static void TeleportWorld_Awake_Postfix(TeleportWorld __instance)
         {
-
-            if (!__instance || !__instance.TryGetComponent(out AutoPinner autoPinner))
+            if (__instance && __instance.TryGetComponent(out AutoPinner autoPinner))
             {
-                return;
+                autoPinner.UpdatePinName(GetPortalAutoPinName(__instance), markAsChanged: false);
             }
-
-            autoPinner.UpdatePinName(GetPortalAutoPinName(__instance), markAsChanged: false);
-
-            if (!__instance.TryGetComponent(out Piece piece) && !piece.IsCreator())
-            {
-                return;
-            }
-
-            autoPinner.AddAutoPin();
         }
 
         /// <summary>
