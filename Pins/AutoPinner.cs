@@ -111,12 +111,11 @@ namespace DiscoveryPins.Pins
             Vector3[] pointsToCheck;
             if (meshRenderer != null)
             {
-                if (!meshRenderer.isVisible)
+                if (!meshRenderer.isVisible)  // only auto-pin if it's actually being rendered
                 {
-                    // only auto-pin if it's actually being rendered
                     return;
                 }
-
+                 
                 var bounds = meshRenderer.bounds;
                 var boundsMid = bounds.min + ((bounds.max - bounds.min) / 2f);
                 pointsToCheck = new[]
@@ -192,8 +191,17 @@ namespace DiscoveryPins.Pins
                 return false;
             }
 
+            // Check if point is underground
+            if (ZoneSystem.instance)
+            {
+                var groundHeight = ZoneSystem.instance.GetGroundHeight(pos);
+                if (pos.y < groundHeight - 1f)
+                {
+                    return false;
+                }
+            }
+
             // Check if the player is standing very close to it and it is a bit above or below them
-            // (for stuff like Copper Ore)
             bool isCloseEnough = distToPlayer <= CloseEnoughXZ && Mathf.Abs(Position.y - playerPosition.y) <= CloseEnoughY;
 
             // compute direction from camera to AutoPinner
@@ -221,6 +229,7 @@ namespace DiscoveryPins.Pins
             }
             return false;
         }
+
         public bool IsAutoPinEnabled(out DiscoveryPins.AutoPinConfig autoPinConfig)
         {
             if (TryGetAutoPinConfig(out autoPinConfig))
