@@ -8,6 +8,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.2.4</td>
+			<td align="left">
+				<ul>
+					<li>Only pin portals when you first build them rather than whenever you load in near ones you built.</li>
+					<li>More adjustments to auto-pinning large objects, now checks face diagonal points of bounding box.</li>
+					<li>Auto-remove pins when the piece that triggered the auto-pin on placement is removed.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.2.3</td>
 			<td align="left">
 				<ul>
