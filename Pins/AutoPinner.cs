@@ -315,14 +315,14 @@ namespace DiscoveryPins.Pins
                 return false;
             }
 
-            // Don't auto-pin if the pin alredy exists
+            // Don't auto-pin if the pin already exists
 
             if (FindExistingPin(Position, icon, PinName) != null)
             {
                 return false;
             }
 
-            Log.LogDebug($"Adding Auto Pin with name: {PinName}, icon: {autoPinConfig.Icon.Value}, pinType: {icon.ToString()}");
+            Log.LogDebug($"Adding Auto Pin with name: {PinName}, icon: {autoPinConfig.Icon.Value}, pinType: {icon}");
             AddPin(Position, icon, PinName);
             return true;
         }
@@ -405,7 +405,7 @@ namespace DiscoveryPins.Pins
                     pins.Add((pin, Utils.DistanceXZ(pos, pin.m_pos)));
                 }   
             }
-
+   
             PinData closest = null;
             closestDis = float.MaxValue;
             foreach (var (pin, dis) in pins)
