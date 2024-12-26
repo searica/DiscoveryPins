@@ -29,7 +29,7 @@ namespace DiscoveryPins
 
         // Global settings
         internal const string GlobalSection = "Global";
-        internal ConfigEntry<int> PinSpacing;
+        internal ConfigEntry<float> PinSpacing;
 
 
         // Auto Pin hot key set up
@@ -115,11 +115,11 @@ namespace DiscoveryPins
             PinSpacing = Config.BindConfigInOrder(
                 GlobalSection,
                 "Pin Spacing",
-                5,
+                0.5f,
                 "The minimum allowable distance between auto-pins."
                 +" If a new auto-pin would be closer to an existing pin"
-                +" than the value of Pin Spacing, then no pin will be plaecd.",
-                new AcceptableValueRange<int>(0, 25),
+                +" than the value of Pin Spacing, then no pin will be placed.",
+                new AcceptableValueRange<int>(0, 10),
                 synced: false
             );
 
