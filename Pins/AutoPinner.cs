@@ -297,18 +297,27 @@ namespace DiscoveryPins.Pins
             }
             PinType icon = PinNames.PinNameToType(autoPinConfig.Icon.Value);
 
-            if (AutoPinNameChanged)
+
+            if (AutoPinNameChanged && FindExistingPin(Position, icon, null) is PinData oldPin)
             {
-                var oldPin = FindPin(Position, icon, null);
-                if (oldPin != null)
-                {
-                    Log.LogDebug($"Removing old pin with name {oldPin.m_NamePinData.PinNameText} because auto pin name changed.");
-                    Minimap.instance.RemovePin(oldPin);
-                }
+                // Remove and replace pin with new name
+                Log.LogDebug($"Removing old pin with name {oldPin.m_NamePinData.PinNameText} because auto pin name changed.");
+                Minimap.instance.RemovePin(oldPin);
                 AutoPinNameChanged = false;
+                AddPin(Position, icon, PinName);
+                return true;
             }
 
-            if (FindPin(Position, icon, PinName) != null)
+            // Don't auto-pin if other pins are too close.
+            var closestPin = FindClosestPin(Position, out float closestDis);
+            if (closestPin != null && closestDis < DiscoveryPins.Instance.PinSpacing.Value)
+            {
+                return false;
+            }
+
+            // Don't auto-pin if the pin alredy exists
+
+            if (FindExistingPin(Position, icon, PinName) != null)
             {
                 return false;
             }
@@ -346,7 +355,7 @@ namespace DiscoveryPins.Pins
         /// <returns></returns>
         public static bool RemovePin(Vector3 pos, PinType pinType = PinType.None, string name = null)
         {
-            if (FindPin(pos, pinType, name) is PinData pin)
+            if (FindExistingPin(pos, pinType, name) is PinData pin)
             {
                 Minimap.instance.RemovePin(pin);
                 return true; 
@@ -354,15 +363,38 @@ namespace DiscoveryPins.Pins
             return false;
         }
 
+
         /// <summary>
-        ///     Find pin on minimap based on pos and type. 
-        ///     If name is provided then check if it matches the name.
+        ///     Find pin on minimap based on pos, type, and optionally the name
         /// </summary>
-        /// <param name="pos"></param>
-        /// <param name="type"></param>
-        /// <param name="name"></param>
+        /// <param name="pos">Position to check for closest pin relative to.</param>
+        /// <param name="type">Pin icon type</param>
+        /// <param name="name">Name of the pin to find.</param>
         /// <returns></returns>
-        public static PinData FindPin(Vector3 pos, PinType type = PinType.None, string name = null)
+        public static PinData FindExistingPin(Vector3 pos, PinType type = PinType.None, string name = null)
+        {
+            var pin = FindClosestPin(pos, out float closestDis, type);
+            if (closestDis > FindPinPrecision)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(name) && pin.m_name != name)
+            {
+                return null;
+            }
+            return pin;
+        }
+
+
+        /// <summary>
+        ///     Find closest pin on minimap based on pos and type. 
+        /// </summary>
+        /// <param name="pos">Position to check for closest pin relative to.</param>
+        /// <param name="type">Pin icon type</param>
+        /// <param name="closestDis">The distanec to the closest pin.</param>
+        /// <returns></returns>
+        public static PinData FindClosestPin(Vector3 pos, out float closestDis, PinType type = PinType.None)
         {
             List<(PinData pin, float dis)> pins = new();
 
@@ -375,7 +407,7 @@ namespace DiscoveryPins.Pins
             }
 
             PinData closest = null;
-            float closestDis = float.MaxValue;
+            closestDis = float.MaxValue;
             foreach (var (pin, dis) in pins)
             {
                 if (closest == null || dis < closestDis)
@@ -383,16 +415,6 @@ namespace DiscoveryPins.Pins
                     closest = pin;
                     closestDis = dis;
                 }
-            }
-
-            if (closestDis > FindPinPrecision) 
-            {
-                return null;
-            }
-
-            if (!string.IsNullOrEmpty(name) && closest.m_name != name)
-            {
-                return null;
             }
 
             return closest;

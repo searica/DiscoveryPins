@@ -29,6 +29,7 @@ namespace DiscoveryPins
 
         // Global settings
         internal const string GlobalSection = "Global";
+        internal ConfigEntry<int> PinSpacing;
 
 
         // Auto Pin hot key set up
@@ -110,6 +111,18 @@ namespace DiscoveryPins
 
         internal void SetUpConfigEntries()
         {
+
+            PinSpacing = Config.BindConfigInOrder(
+                GlobalSection,
+                "Pin Spacing",
+                5,
+                "The minimum allowable distance between auto-pins."
+                +" If a new auto-pin would be closer to an existing pin"
+                +" than the value of Pin Spacing, then no pin will be plaecd.",
+                new AcceptableValueRange<int>(0, 25),
+                synced: false
+            );
+
             // Auto Pin shortcut configs
             AutoPinShortcutConfigs = new AutoPinShortcutConfig()
             {
