@@ -2,6 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 using static Minimap;
+using Logging;
 
 namespace DiscoveryPins.Patches
 {

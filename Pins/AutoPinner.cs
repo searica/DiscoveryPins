@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static DiscoveryPins.DiscoveryPins;
 using static Minimap;
+using Logging;
 
 namespace DiscoveryPins.Pins
 {

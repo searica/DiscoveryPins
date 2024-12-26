@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections.Generic;
 using UnityEngine;
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
 using HarmonyLib;
 using Jotunn.Utils;
 using Jotunn.Managers;
-using DiscoveryPins.Helpers;
-using System.Collections.Generic;
 using DiscoveryPins.Pins;
-using DiscoveryPins.Configs;
+using Configs;
+using Logging;
 
 namespace DiscoveryPins
 {
@@ -27,6 +26,10 @@ namespace DiscoveryPins
 
         internal static DiscoveryPins Instance;
         internal static ConfigFile ConfigFile;
+
+        // Global settings
+        internal const string GlobalSection = "Global";
+
 
         // Auto Pin hot key set up
         internal const string AutoPinShortcutSection = "Auto Pin Shortcut";
@@ -108,55 +111,48 @@ namespace DiscoveryPins
         internal void SetUpConfigEntries()
         {
             // Auto Pin shortcut configs
-            int sectionCounter = 1;
             AutoPinShortcutConfigs = new AutoPinShortcutConfig()
             {
-                Enabled = Config.BindConfig(
+                Enabled = Config.BindConfigInOrder(
                     AutoPinShortcutSection,
                     "Enabled",
                     true,
                     "Whether to allow using the auto pin shortcut.",
-                    sectionOrder: sectionCounter,
                     synced: true
                 ),
-                Range = Config.BindConfig(
+                Range = Config.BindConfigInOrder(
                     AutoPinShortcutSection,
                     "Range",
                     20f,
                     "Maximum distance that auto pins can be generated.",
                     new AcceptableValueRange<float>(AutoPinner.CloseEnoughXZ, 50f),
-                    sectionOrder: sectionCounter,
                     synced: true
                 ),
-                Shortcut = Config.BindConfig(
+                Shortcut = Config.BindConfigInOrder(
                     AutoPinShortcutSection,
                     "Shortcut",
                     new KeyboardShortcut(KeyCode.Mouse1, KeyCode.LeftShift),
                     "Shortcut to trigger auto pin.",
-                    sectionOrder: sectionCounter,
                     synced: false
                 )
             };
 
 
             // Tombstone configs
-            sectionCounter++;
             DeathPinConfigs = new DeathPinConfig()
             {
-                PinWhenInvIsEmpty = Config.BindConfig(
+                PinWhenInvIsEmpty = Config.BindConfigInOrder(
                     DeathPinSection,
                     "Generate with empty inventory", 
                     true, 
                     "Death pin will/won't be generated if your inventory was empty.",
-                    sectionOrder: sectionCounter,
                     synced: false
                 ),
-                AutoRemoveEnabled = Config.BindConfig(
+                AutoRemoveEnabled = Config.BindConfigInOrder(
                     DeathPinSection,
                     "Remove on retrieval",
                     true,
                     "Death pin be removed automatically when tombstone is retrieved.",
-                    sectionOrder: sectionCounter,
                     synced: false
                 )
             };
@@ -165,21 +161,19 @@ namespace DiscoveryPins
             
             foreach (KeyValuePair<AutoPins.AutoPinCategory, Minimap.PinType> pair in AutoPins.DefaultPinTypes)
             {
-                sectionCounter++;
-                var sectionName = $"{sectionCounter} - Auto Pin: {pair.Key.ToString()}";
-     
+                var sectionName = $"Auto Pin: {pair.Key}";
                 AutoPinConfigs.Add(
                     pair.Key,
                     new AutoPinConfig()
                     {
-                        Enabled = Config.BindConfig(
+                        Enabled = Config.BindConfigInOrder(
                             sectionName,
                             "Enabled",
                             true,
                             "Whether auto pinning is enabled.",
                             synced: false
                         ),
-                        Icon = Config.BindConfig(
+                        Icon = Config.BindConfigInOrder(
                             sectionName,
                             "Icon",
                             PinNames.PinTypeToName(pair.Value),
@@ -192,26 +186,22 @@ namespace DiscoveryPins
             }
 
             // Color configs
-            sectionCounter++;
-            EnableColors = Config.BindConfig(
+            EnableColors = Config.BindConfigInOrder(
                 ColorSection, 
                 "Enabled",
                 true, 
                 "Whether to enable custom pin colors.",
-                order: 10,
-                sectionOrder: sectionCounter,
                 synced: false
             );
             foreach (KeyValuePair<Minimap.PinType, string> pair in PinColors.DefaultPinColors) 
             {   
                 PinColorConfigs.Add(
                     pair.Key,
-                    Config.BindConfig(
+                    Config.BindConfigInOrder(
                         ColorSection, 
                         PinNames.PinTypeToName(pair.Key), 
                         pair.Value, 
                         "Color to use for pins of this type.",
-                        sectionOrder: sectionCounter,
                         synced: false
                     )
                 );
@@ -239,90 +229,5 @@ namespace DiscoveryPins
             Config.Save();
         }
 
-    }
-
-    /// <summary>
-    ///     Log level to control output to BepInEx log
-    /// </summary>
-    internal enum LogLevel
-    {
-        Low = 0,
-        Medium = 1,
-        High = 2,
-    }
-
-    /// <summary>
-    ///     Helper class for properly logging from static contexts.
-    /// </summary>
-    internal static class Log
-    {
-        internal static ConfigEntry<LogLevel> Verbosity { get; set; }
-        internal static LogLevel VerbosityLevel => Verbosity.Value;
-        internal static bool IsVerbosityLow => Verbosity.Value >= LogLevel.Low;
-        internal static bool IsVerbosityMedium => Verbosity.Value >= LogLevel.Medium;
-        internal static bool IsVerbosityHigh => Verbosity.Value >= LogLevel.High;
-
-        private static ManualLogSource logSource;
-
-        internal static void Init(ManualLogSource logSource)
-        {
-            Log.logSource = logSource;
-        }
-
-        internal static void LogDebug(object data) => logSource.LogDebug(data);
-
-        internal static void LogError(object data) => logSource.LogError(data);
-
-        internal static void LogFatal(object data) => logSource.LogFatal(data);
-
-        internal static void LogMessage(object data) => logSource.LogMessage(data);
-
-        internal static void LogWarning(object data) => logSource.LogWarning(data);
-
-        internal static void LogInfo(object data, LogLevel level = LogLevel.Low)
-        {
-            if (Verbosity is null || VerbosityLevel >= level)
-            {
-                logSource.LogInfo(data);
-            }
-        }
-
-        internal static void LogGameObject(GameObject prefab, bool includeChildren = false)
-        {
-            LogInfo("***** " + prefab.name + " *****");
-            foreach (Component compo in prefab.GetComponents<Component>())
-            {
-                LogComponent(compo);
-            }
-
-            if (!includeChildren) { return; }
-
-            LogInfo("***** " + prefab.name + " (children) *****");
-            foreach (Transform child in prefab.transform)
-            {
-                LogInfo($" - {child.gameObject.name}");
-                foreach (Component compo in child.gameObject.GetComponents<Component>())
-                {
-                    LogComponent(compo);
-                }
-            }
-        }
-
-        internal static void LogComponent(Component compo)
-        {
-            LogInfo($"--- {compo.GetType().Name}: {compo.name} ---");
-
-            PropertyInfo[] properties = compo.GetType().GetProperties(ReflectionUtils.AllBindings);
-            foreach (var property in properties)
-            {
-                LogInfo($" - {property.Name} = {property.GetValue(compo)}");
-            }
-
-            FieldInfo[] fields = compo.GetType().GetFields(ReflectionUtils.AllBindings);
-            foreach (var field in fields)
-            {
-                LogInfo($" - {field.Name} = {field.GetValue(compo)}");
-            }
-        }
     }
 }
