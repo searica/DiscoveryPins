@@ -396,12 +396,10 @@ namespace DiscoveryPins.Pins
         /// <returns></returns>
         public static PinData FindClosestPin(Vector3 pos, out float closestDis, PinType type = PinType.None)
         {
-            List<(PinData pin, float dis)> pins = new();
-
+            List<(PinData pin, float dis)> pins = [];
             foreach (var pin in Minimap.instance.m_pins)
             {
-                if (type == PinType.None || pin.m_type == type)
-                {
+                if (type == PinType.None || pin.m_type == type){
                     pins.Add((pin, Utils.DistanceXZ(pos, pin.m_pos)));
                 }   
             }
