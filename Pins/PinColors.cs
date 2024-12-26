@@ -80,7 +80,7 @@ namespace DiscoveryPins.Pins
 
             foreach (var pin in Minimap.instance.m_pins)
             {
-                if (pin.m_iconElement == null)
+                if (pin.m_iconElement == null || pin.m_shouldDelete || pin.m_NamePinData == null || !pin.m_NamePinData.PinNameGameObject)
                 {
                     continue;
                 }
