@@ -8,6 +8,15 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.0</td>
+			<td align="left">
+				<ul>
+					<li>Added pin spacing config.</li>
+					<li>Fixed possible bug where deleted pins could reappear under specific circumstances.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.2.4</td>
 			<td align="left">
 				<ul>

@@ -4,6 +4,7 @@ Can be used as a purely client side mod or it can be installed on the server to 
 
 ## Features
 - Configure pin colors.
+- Configure minimum allowed distance between auto-pins.
 - Automatically pin dungeons when you enter them (configurable).
 - Automatically pin ore when you damage it (configurable).
 - Automatically pin portals when building or interacting with them (configurable).
