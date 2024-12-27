@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.1</td>
+			<td align="left">
+				<ul>
+					<li>Fixed exception caused by a typo.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.0</td>
 			<td align="left">
 				<ul>

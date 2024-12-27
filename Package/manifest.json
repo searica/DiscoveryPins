@@ -1,7 +1,7 @@
 {
   "name": "DiscoveryPins",
   "author": "Searica",
-  "version_number": "0.3.0",
+  "version_number": "0.3.1",
   "website_url": "https://discord.gg/sFmGTBYN6n",
   "description": "QoL Map Pins mod. Customizable pin colors and automatic pinning of things you discover and interact with.",
   "dependencies": [

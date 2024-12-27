@@ -22,7 +22,7 @@ namespace DiscoveryPins
         public const string PluginName = "DiscoveryPins";
         internal const string Author = "Searica";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "0.3.0";
+        public const string PluginVersion = "0.3.1";
 
         internal static DiscoveryPins Instance;
         internal static ConfigFile ConfigFile;
@@ -119,7 +119,7 @@ namespace DiscoveryPins
                 "The minimum allowable distance between auto-pins."
                 +" If a new auto-pin would be closer to an existing pin"
                 +" than the value of Pin Spacing, then no pin will be placed.",
-                new AcceptableValueRange<int>(0, 10),
+                new AcceptableValueRange<float>(0, 10),
                 synced: false
             );
 
