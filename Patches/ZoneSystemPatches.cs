@@ -1,9 +1,6 @@
 ﻿
-using System.Linq;
 using UnityEngine.SceneManagement;
 using HarmonyLib;
-
-using DiscoveryPins.Pins;
 using DiscoveryPins.Extensions;
 
 namespace DiscoveryPins.Patches
