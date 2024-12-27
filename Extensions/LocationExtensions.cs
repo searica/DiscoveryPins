@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using BepInEx;
+﻿using BepInEx;
 using UnityEngine;
-using static Mono.Security.X509.X520;
 
 
 namespace DiscoveryPins.Extensions
