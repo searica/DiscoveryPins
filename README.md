@@ -5,6 +5,7 @@ Can be used as a purely client side mod or it can be installed on the server to 
 ## Features
 - Configure pin colors.
 - Configure minimum allowed distance between auto-pins.
+- - Configurable keyboard shortcut to automatically pin things within your field of view or very close to your character that are configured to be automatically pinned.
 - Automatically pin dungeons when you enter them (configurable).
 - Automatically pin ore when you damage it (configurable).
 - Automatically pin portals when building or interacting with them (configurable).
@@ -12,8 +13,8 @@ Can be used as a purely client side mod or it can be installed on the server to 
 	- Updates pin names when you change the portal tag.
 	- Will fail to remove the old pin if you change the pin type for portals and then change the portal tag.
 - Automatically remove death pins when retrieving your tombstone (configurable).
+- Automatically pin open world locations like camps and villages using the keyboard shortcut (configurable).
 - Configure whether to generate death pins when inventory is empty.
-- Configurable keyboard shortcut to automatically pin things within your field of view or very close to your character that are configured to be automatically pinned.
 - Synced settings for whether the keyboard shortcut is enabled and how far away it can trigger automatic pins.
 
 ## Donations/Tips
@@ -47,6 +48,9 @@ If you like this mod you might like some of my other ones.
 - [CameraTweaks](https://thunderstore.io/c/valheim/p/Searica/CameraTweaks/)
 - [DodgeShortcut](https://thunderstore.io/c/valheim/p/Searica/DodgeShortcut/)
 - [FortifySkillsRedux](https://thunderstore.io/c/valheim/p/Searica/FortifySkillsRedux/)
+- [NetworkTweaks](https://thunderstore.io/c/valheim/p/Searica/NetworkTweaks/)
+- [OpenSesame](https://thunderstore.io/c/valheim/p/Searica/OpenSesame/)
 - [ProjectileTweaks](https://thunderstore.io/c/valheim/p/Searica/ProjectileTweaks/)
 - [SkilledCarryWeight](https://thunderstore.io/c/valheim/p/Searica/SkilledCarryWeight/)
 - [SafetyStatus](https://thunderstore.io/c/valheim/p/Searica/SafetyStatus/)
+- [WatchWhereYouStab](https://thunderstore.io/c/valheim/p/Searica/WatchWhereYouStab/)
