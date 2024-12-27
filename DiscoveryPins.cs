@@ -115,12 +115,10 @@ namespace DiscoveryPins
             PinSpacing = Config.BindConfigInOrder(
                 GlobalSection,
                 "Pin Spacing",
-                0.5f,
+                10f,
                 "The minimum allowable distance between auto-pins."
                 +" If a new auto-pin would be closer to an existing pin"
                 +" than the value of Pin Spacing, then no pin will be placed.",
-                new AcceptableValueRange<float>(0, 10),
-                synced: false
             );
 
             // Auto Pin shortcut configs
