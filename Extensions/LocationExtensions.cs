@@ -71,6 +71,13 @@ namespace DiscoveryPins.Extensions
             return false;
         }
 
+        /// <summary>
+        ///     If the location does not have an interior then try getting a dungeon generator and detecting it's name.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="generator"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         internal static bool TryGetOverworldDungeon(this Location location, out DungeonGenerator generator, out string name)
         {
             generator = null;
