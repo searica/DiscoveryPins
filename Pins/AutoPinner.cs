@@ -4,6 +4,7 @@ using UnityEngine;
 using static DiscoveryPins.DiscoveryPins;
 using static Minimap;
 using Logging;
+using DiscoveryPins.Extensions;
 
 namespace DiscoveryPins.Pins
 {
@@ -16,10 +17,9 @@ namespace DiscoveryPins.Pins
         public string PinName;
         private bool AutoPinNameChanged = false;
 
-
         public AutoPins.AutoPinCategory AutoPinCategory;
         private Vector3 LastPosition;
-        public Vector3 Position {  
+        public Vector3 Position {
             get
             {
                 if (this.transform)
@@ -88,7 +88,7 @@ namespace DiscoveryPins.Pins
                 return;
             }
 
-            if (!Player.m_localPlayer || !GameCamera.instance){
+            if (!Player.m_localPlayer || !GameCamera.instance) {
                 return;
             }
 
@@ -97,108 +97,11 @@ namespace DiscoveryPins.Pins
             var playerPosition = Player.m_localPlayer.transform.position;
             var lookDir = Player.m_localPlayer.m_lookDir;
 
-            // Get bounding points via mesh renderer if one is present.
-            MeshRenderer meshRenderer = null;
-            if (this.TryGetComponent(out MineRock5 mineRock5) && mineRock5.m_meshRenderer)
+            if (!TryGetPointsToCheck(out List<Vector3> pointsToCheck))
             {
-                meshRenderer = mineRock5.m_meshRenderer;
+                return;
             }
-            else if (this.GetComponent<Destructible>())
-            {
-                meshRenderer = this.GetComponentInChildren<MeshRenderer>();
-            }
-
-            // Get points to check for visibilty
-            Vector3[] pointsToCheck;
-            if (meshRenderer != null)
-            {
-                if (!meshRenderer.isVisible)  // only auto-pin if it's actually being rendered
-                {
-                    return;
-                }
-                 
-                var bounds = meshRenderer.bounds;
-                var bounds0p25 = bounds.min + (bounds.size / 4f);
-                var boundsMid = bounds.min + (bounds.size / 2f);
-                var bounds0p75 = bounds.min + (3f * bounds.size / 4f);
-
-                pointsToCheck = new[]
-                {
-                    // center (2 pts)
-                    Position,
-                    bounds.center,
-
-                    // Vertices (6 pts)
-                    bounds.min,
-                    bounds.max,
-                    new(bounds.min.x, bounds.min.y, bounds.max.z),
-                    new(bounds.min.x, bounds.max.y, bounds.min.z),
-                    new(bounds.max.x, bounds.min.y, bounds.min.z),
-                    new(bounds.min.x, bounds.max.y, bounds.max.z),
-                    new(bounds.max.x, bounds.min.y, bounds.max.z),
-                    new(bounds.max.x, bounds.max.y, bounds.min.z),
-
-                    // Face center points (6 pts)
-                    new(bounds.min.x, boundsMid.y, boundsMid.z),
-                    new(bounds.max.x, boundsMid.y, boundsMid.z),
-                    new(boundsMid.x, bounds.min.y, boundsMid.z),
-                    new(boundsMid.x, bounds.max.y, boundsMid.z),
-                    new(boundsMid.x, boundsMid.y, bounds.min.z),
-                    new(boundsMid.x, boundsMid.y, bounds.max.z),
-
-                    // Mid edge points (12 pts)
-                    new(boundsMid.x, bounds.max.y,bounds.max.z),
-                    new(boundsMid.x, bounds.min.y,bounds.max.z),
-                    new(boundsMid.x, bounds.max.y,bounds.min.z),
-                    new(boundsMid.x, bounds.min.y,bounds.min.z),
-
-                    new(bounds.max.x, boundsMid.y, bounds.max.z),
-                    new(bounds.min.x, boundsMid.y, bounds.max.z),
-                    new(bounds.max.x, boundsMid.y, bounds.min.z),
-                    new(bounds.min.x, boundsMid.y, bounds.min.z),
-         
-                    new(bounds.max.x, bounds.max.y, boundsMid.z),
-                    new(bounds.min.x, bounds.max.y, boundsMid.z),
-                    new(bounds.max.x, bounds.min.y, boundsMid.z),
-                    new(bounds.min.x, bounds.min.y, boundsMid.z),
-
-                    // Diagonal face points (24 pts)
-                    new(bounds0p25.x, bounds.max.y, bounds0p25.z),
-                    new(bounds0p75.x, bounds.max.y, bounds0p25.z),
-                    new(bounds0p25.x, bounds.max.y, bounds0p75.z),
-                    new(bounds0p75.x, bounds.max.y, bounds0p75.z),
-
-                    new(bounds0p25.x, bounds.min.y, bounds0p25.z),
-                    new(bounds0p75.x, bounds.min.y, bounds0p25.z),
-                    new(bounds0p25.x, bounds.min.y, bounds0p75.z),
-                    new(bounds0p75.x, bounds.min.y, bounds0p75.z),
-
-                    new(bounds.max.x, bounds0p25.y, bounds0p25.z),
-                    new(bounds.max.x, bounds0p75.y, bounds0p25.z),
-                    new(bounds.max.x, bounds0p25.y, bounds0p75.z),
-                    new(bounds.max.x, bounds0p75.y, bounds0p75.z),
-
-                    new(bounds.min.x, bounds0p25.y, bounds0p25.z),
-                    new(bounds.min.x, bounds0p75.y, bounds0p25.z),
-                    new(bounds.min.x, bounds0p25.y, bounds0p75.z),
-                    new(bounds.min.x, bounds0p75.y, bounds0p75.z),
-
-                    new(bounds0p25.x, bounds0p25.y, bounds.max.z),
-                    new(bounds0p75.x, bounds0p25.y, bounds.max.z),
-                    new(bounds0p25.x, bounds0p75.y, bounds.max.z),
-                    new(bounds0p75.x, bounds0p75.y, bounds.max.z),
-
-                    new(bounds0p25.x, bounds0p25.y, bounds.min.z),
-                    new(bounds0p75.x, bounds0p25.y, bounds.min.z),
-                    new(bounds0p25.x, bounds0p75.y, bounds.min.z),
-                    new(bounds0p75.x, bounds0p75.y, bounds.min.z),
-                };
-            }
-            else
-            {
-                pointsToCheck = new[] { Position };
-            }
-            
+ 
             // Check all points of interest to see if they are being looked at or are close enough
             foreach (var point in pointsToCheck)
             {
@@ -210,6 +113,85 @@ namespace DiscoveryPins.Pins
             }
         }
 
+        /// <summary>
+        ///     Tries to determine an appropriate bounding box and use that
+        ///     to get points to check for visibility of.
+        /// </summary>
+        /// <param name="pointsToCheck"></param>
+        /// <returns></returns>
+        private bool TryGetPointsToCheck(out List<Vector3> pointsToCheck)
+        {
+            // Get bounding points via mesh renderer if one is present.
+            MeshRenderer meshRenderer = null;
+            Location location = null;
+            pointsToCheck = null;
+            Bounds bounds;
+
+            if (this.TryGetComponent(out MineRock5 mineRock5) && mineRock5.m_meshRenderer)
+            {
+                meshRenderer = mineRock5.m_meshRenderer;
+            }
+            else if (this.GetComponent<Destructible>())
+            {
+                meshRenderer = this.GetComponentInChildren<MeshRenderer>();
+            }
+            else if (gameObject.TryGetComponent(out location))
+            {
+                 // just want to get location and move on if true.
+            }
+            else if (gameObject.IsLocationProxy())
+            {
+                location = gameObject.GetComponentInChildren<Location>();
+            }
+
+            if (meshRenderer)
+            {
+                // only auto-pin if it's actually being rendered
+                if (!meshRenderer.isVisible)
+                {
+                    return false;
+                }
+                bounds = meshRenderer.bounds;
+            }
+            else if (location)
+            {
+                // estimate bounds from location radius
+                float size = location.m_exteriorRadius * 2f;
+                bounds = new(location.transform.position, new Vector3(size, size, size));
+            }
+            else
+            {
+                // just check the center
+                pointsToCheck = [Position];
+                return true;
+            }
+
+            // create grid of points throughout the volume based on close enough spacing
+            // if the object has size smaller than close enough then it just adds the vertices
+            GetPointSpacing(bounds.size.x, CloseEnoughXZ, out int nXpts, out float xSpacing);
+            GetPointSpacing(bounds.size.y, CloseEnoughY, out int nYpts, out float ySpacing);
+            GetPointSpacing(bounds.size.z, CloseEnoughXZ, out int nZpts, out float zSpacing);
+            pointsToCheck = [Position, bounds.center]; // start with center points
+            for (int i = 0; i < nXpts; i++)
+            {
+                for (int j = 0; j < nYpts; j++)
+                {
+                    for (int k = 0; k < nZpts; k++)
+                    {
+                        pointsToCheck.Add(bounds.min + new Vector3(i*xSpacing, j*ySpacing, k*zSpacing));
+                    }
+                }
+            }
+            return true;
+        }
+
+        private static void GetPointSpacing(float size, float targetSpacing, out int nPts, out float spacing)
+        {
+            nPts = Mathf.CeilToInt(size / targetSpacing);
+            spacing = size / nPts;
+
+            nPts++; // account for end point
+        }
 
         /// <summary>
         ///     Rough check if the point is within camera cone or close enough.
@@ -316,7 +298,6 @@ namespace DiscoveryPins.Pins
             }
 
             // Don't auto-pin if the pin already exists
-
             if (FindExistingPin(Position, icon, PinName) != null)
             {
                 return false;
