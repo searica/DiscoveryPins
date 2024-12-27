@@ -90,7 +90,7 @@ namespace DiscoveryPins.Extensions
                 return false;
             }
 
-            name = generator.m_themes.ToString();
+            name = generator.m_themes.ToString().Replace("Goblin", "Fuling");
             return true;
         }
 
