@@ -12,10 +12,10 @@ namespace DiscoveryPins.Patches
         /// <param name="__instance"></param>
         /// <param name="piece"></param>
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(Player), nameof(Player.PlacePiece))]
-        public static void Player_PlacePiece_Postfix(Player __instance, ref Piece piece)
+        [HarmonyPatch(typeof(Piece), nameof(Piece.OnPlaced))]
+        public static void Piece_OnPlaced_Postfix(Piece __instance)
         {
-            if (piece && piece.TryGetComponent(out AutoPinner autoPinner))
+            if (__instance && __instance.TryGetComponent(out AutoPinner autoPinner))
             {
                 autoPinner.AddAutoPin();
             }
