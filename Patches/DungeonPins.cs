@@ -1,15 +1,12 @@
 ﻿using HarmonyLib;
-using System.Collections.Generic;
 using DiscoveryPins.Extensions;
 using DiscoveryPins.Pins;
 
 namespace DiscoveryPins.Patches
 {
     [HarmonyPatch]
-    internal static class LocationPins
+    internal static class DungeonPins
     {
-        internal static List<Location> Locations = new();
-
         /// <summary>
         ///     Track locations with an interior
         /// </summary>
@@ -18,19 +15,9 @@ namespace DiscoveryPins.Patches
         [HarmonyPatch(typeof(Location), nameof(Location.Awake))]
         private static void Location_AwakePostfix(Location __instance)
         {
-
             if (__instance.TryGetInteriorEntrance(out Teleport entrance, out string name))
             {
                 AutoPinner.AddAutoPinner(entrance.gameObject, name, AutoPins.AutoPinCategory.Dungeon);
-            }
-
-            else if (__instance.TryGetOverworldDungeon(out DungeonGenerator generator, out name))
-            {
-                AutoPinner.AddAutoPinner(generator.gameObject, name, AutoPins.AutoPinCategory.Location);
-            }
-            else
-            {
-                return;
             }
         }
 
