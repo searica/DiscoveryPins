@@ -11,8 +11,16 @@ namespace DiscoveryPins.Patches
     [HarmonyPatch]
     internal static class OrePins
     {
-        private static readonly List<string> OreNames = new () { "Tin", "Copper", "Silver" };
-        private static readonly HashSet<string> OrePrefabNames = new();
+        private static readonly List<string> OreNames = [
+            "Tin", 
+            "Copper", 
+            "Silver", 
+            "Obsidian",
+            "Giant",
+            "Tar"
+        ];
+
+        private static readonly HashSet<string> OrePrefabNames = [];
 
         /// <summary>
         ///     Adds AutoPinner to prefab if it is actually Ore and not already modified.
@@ -66,6 +74,11 @@ namespace DiscoveryPins.Patches
                 OreName = mineRock5.m_name;
                 return true;
             }
+            else if (gameObject.IsTarPit())
+            {
+                return true;
+            }
+
             return false;
         }
 
