@@ -13,5 +13,11 @@ namespace DiscoveryPins.Extensions
         {
             return !gameObject.transform.parent;
         }
+
+
+        internal static bool IsTarPit(this GameObject gameObject)
+        {
+            return gameObject.transform.Find("TarLiquid");
+        }
     }
 }
