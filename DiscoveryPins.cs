@@ -119,6 +119,9 @@ namespace DiscoveryPins
                 "The minimum allowable distance between auto-pins."
                 +" If a new auto-pin would be closer to an existing pin"
                 +" than the value of Pin Spacing, then no pin will be placed.",
+                new AcceptableValueRange<float>(0, 100),
+                synced: false,
+                configAttributes: new ConfigurationManagerAttributes() { ShowRangeAsPercent = false }
             );
 
             // Auto Pin shortcut configs
