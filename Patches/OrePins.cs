@@ -36,14 +36,39 @@ namespace DiscoveryPins.Patches
         /// <returns></returns>
         private static bool IsOrePrefab(GameObject gameObject, out string OreName)
         {
-
-            if (gameObject.GetComponent<Destructible>() || gameObject.GetComponent<MineRock5>())
-            {
-                return TryGetOreName(gameObject, out OreName);
-            }
+            bool isOrePrefab = false;
             OreName = null;
+            foreach (var name in OreNames)
+            {
+                if (gameObject.name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    OreName = name;
+                    isOrePrefab = true;
+                    break;
+                }
+            }
+
+            if (!isOrePrefab) 
+            {
+                return false;
+            }
+
+            if (gameObject.GetComponent<Destructible>())
+            {
+                if (gameObject.TryGetComponent(out HoverText hoverText))
+                {
+                    OreName = hoverText.m_text;
+                }
+                return true;
+            }
+            else if (gameObject.TryGetComponent(out MineRock5 mineRock5))
+            {
+                OreName = mineRock5.m_name;
+                return true;
+            }
             return false;
         }
+
 
         /// <summary>
         ///     Try getting the name of the Ore that is mined from this prefab
@@ -57,6 +82,11 @@ namespace DiscoveryPins.Patches
             {
                 if (prefab.name.Contains(name, StringComparison.OrdinalIgnoreCase))
                 {
+                    if (prefab.TryGetComponent(out HoverText hoverText))
+                    {
+                        OreName = hoverText.m_text;
+                        return true;
+                    }
                     OreName = name;
                     return true;
                 }
