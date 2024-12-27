@@ -85,7 +85,7 @@ namespace DiscoveryPins.Extensions
                 return false;
             }
 
-            if (!location.TryGetDungeonGenerator(out generator) || generator is null)
+            if (!location.TryGetDungeonGenerator(out generator) || !generator)
             {
                 return false;
             }
