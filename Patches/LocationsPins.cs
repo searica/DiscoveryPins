@@ -13,7 +13,7 @@ namespace DiscoveryPins.Patches
         private static readonly Dictionary<string, string> OverworldLocationNamesMap = [];
 
         /// <summary>
-        ///     Track locations that spawn an exeterior dungeon
+        ///     Track locations that spawn an exterior dungeon
         /// </summary>
         /// <param name="__instance"></param>
         [HarmonyPostfix]
