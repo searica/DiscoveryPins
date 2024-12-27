@@ -8,6 +8,19 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.2</td>
+			<td align="left">
+				<ul>
+					<li>Fixed bug that prevented portals being pinned when you placed them.</li>
+					<li>Increased default and max values for Pin Spacing.</li>
+					<li>Added auto-pin options for Obsidian, Giant remains, and Tar (all considered Ore).</li>.
+					<li>Improved automatic localization of ore pin names.</li>
+					<li>Fixed bug that prevent auto-pinning of overworld dungeons like camps and villages.</li>
+					<li>Improved detection of objects on screen when using the auto-pin shortcut. Now dymanically samples more points in the location the larger the object is.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.1</td>
 			<td align="left">
 				<ul>
