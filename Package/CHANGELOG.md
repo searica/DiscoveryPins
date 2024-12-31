@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.3</td>
+			<td align="left">
+				<ul>
+					<li>Fixed bug that meant pins were not recolored when placed unless you named them.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.2</td>
 			<td align="left">
 				<ul>
