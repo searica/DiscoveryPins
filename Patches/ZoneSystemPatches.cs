@@ -33,6 +33,8 @@ namespace DiscoveryPins.Patches
 
                 OrePins.TryAddAutoPinnerToOre(prefab);
                 PortalPins.TryAddAutoPinnerToPortal(prefab);
+                PickablePins.TryAddAutoPinnerToPickable(prefab);
+                VehiclePins.TryAddAutoPinnerToVehicle(prefab);
             }
         }
     }

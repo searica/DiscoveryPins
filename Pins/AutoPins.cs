@@ -10,7 +10,9 @@ namespace DiscoveryPins.Pins
             Dungeon,
             Location,
             Ore,
-            Portal
+            Portal,
+            Pickable,
+            Vehicle
         }
 
         internal static Dictionary<AutoPinCategory, PinType> DefaultPinTypes = new()
@@ -18,7 +20,9 @@ namespace DiscoveryPins.Pins
             { AutoPinCategory.Dungeon, PinType.Icon4 }, // Cave
             { AutoPinCategory.Location, PinType.Icon0  }, // Fireplace
             { AutoPinCategory.Ore, PinType.Icon2 }, // Hammer
-            { AutoPinCategory.Portal, PinType.Icon3 } // Ball
+            { AutoPinCategory.Portal, PinType.Icon3 }, // Ball
+            { AutoPinCategory.Pickable, PinType.Icon3 }, // Ball
+            { AutoPinCategory.Vehicle, PinType.Icon3 } // Ball
         };     
     }
 }
