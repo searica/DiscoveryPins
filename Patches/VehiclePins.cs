@@ -4,6 +4,7 @@ using DiscoveryPins.Pins;
 using HarmonyLib;
 using UnityEngine;
 using DiscoveryPins.Extensions;
+using System.Linq;
 
 
 namespace DiscoveryPins.Patches
@@ -57,14 +58,11 @@ namespace DiscoveryPins.Patches
         {
             bool isVehiclePrefab = false;
             VehicleName = null;
-            foreach (var name in VehiclesDict.Keys)
+
+            if (VehiclesDict.Keys.Contains(gameObject.name, StringComparer.OrdinalIgnoreCase))
             {
-                if (gameObject.name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    VehiclesDict.TryGetValue(name, out VehicleName);
-                    isVehiclePrefab = true;
-                    break;
-                }
+                VehiclesDict.TryGetValue(gameObject.name, out VehicleName);
+                isVehiclePrefab = true;
             }
 
             return isVehiclePrefab;

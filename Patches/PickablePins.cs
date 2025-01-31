@@ -4,6 +4,8 @@ using DiscoveryPins.Pins;
 using HarmonyLib;
 using UnityEngine;
 using DiscoveryPins.Extensions;
+using System.Linq;
+using static Mono.Security.X509.X520;
 
 
 namespace DiscoveryPins.Patches
@@ -86,14 +88,11 @@ namespace DiscoveryPins.Patches
         {
             bool isPickablePrefab = false;
             PickableName = null;
-            foreach (var name in PickablesDict.Keys)
+
+            if (PickablesDict.Keys.Contains(gameObject.name, StringComparer.OrdinalIgnoreCase))
             {
-                if (gameObject.name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    PickablesDict.TryGetValue(name, out PickableName);
-                    isPickablePrefab = true;
-                    break;
-                }
+                PickablesDict.TryGetValue(gameObject.name, out PickableName);
+                isPickablePrefab = true;
             }
 
             return isPickablePrefab;

@@ -61,7 +61,7 @@ namespace DiscoveryPins.Patches
                 return false;
             }
 
-            if (gameObject.GetComponent<Destructible>())
+            if (gameObject.GetComponent<Destructible>() && !gameObject.GetComponent<Pickable>())
             {
                 if (gameObject.TryGetComponent(out HoverText hoverText))
                 {
