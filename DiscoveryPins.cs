@@ -22,7 +22,7 @@ namespace DiscoveryPins
         public const string PluginName = "DiscoveryPins";
         internal const string Author = "Searica";
         public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-        public const string PluginVersion = "0.3.3";
+        public const string PluginVersion = "0.3.6";
 
         internal static DiscoveryPins Instance;
         internal static ConfigFile ConfigFile;
@@ -64,7 +64,7 @@ namespace DiscoveryPins
         // Pin Color Configs
         internal const string ColorSection = "Pin Colors";
         internal ConfigEntry<bool> EnableColors;
-        internal readonly Dictionary<Minimap.PinType, ConfigEntry<string>> PinColorConfigs = new();
+        internal readonly Dictionary<Minimap.PinType, ConfigEntry<string>> PinColorConfigs = [];
         internal static bool ColorConfigsChanged = false;
 
         /// <summary>
@@ -84,10 +84,12 @@ namespace DiscoveryPins
 
             Config.Init(PluginGUID, false);
             SetUpConfigEntries();
+            UpdatePlugin(saveConfig: true, initialUpdate: true);
+
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
             Game.isModded = true;
 
-            UpdatePlugin(saveConfig: true, initialUpdate: true);
+            
 
             // Re-initialization after reloading config and don't save since file was just reloaded
             Config.SetupWatcher();
@@ -172,7 +174,6 @@ namespace DiscoveryPins
             };
 
             // Auto pin configs
-            
             foreach (KeyValuePair<AutoPins.AutoPinCategory, Minimap.PinType> pair in AutoPins.DefaultPinTypes)
             {
                 var sectionName = $"Auto Pin: {pair.Key}";

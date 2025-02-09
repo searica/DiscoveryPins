@@ -8,6 +8,22 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.6</td>
+			<td align="left">
+				<ul>
+					<li>Fix deleted pins reappearing.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td align="center">0.3.4/0.3.5</td>
+			<td align="left">
+				<ul>
+					<li>Fixed bug where pins were only colored when you zoomed out enough.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.3</td>
 			<td align="left">
 				<ul>
