@@ -98,7 +98,7 @@ internal static class Log
         try
         {
             List<PropertyInfo> properties = AccessTools.GetDeclaredProperties(compo.GetType());
-            foreach (var property in properties)
+            foreach (PropertyInfo property in properties)
             {
                 try
                 {
@@ -120,7 +120,7 @@ internal static class Log
         try
         {
             List<FieldInfo> fields = AccessTools.GetDeclaredFields(compo.GetType());
-            foreach (var field in fields)
+            foreach (FieldInfo field in fields)
             {
                 try
                 {

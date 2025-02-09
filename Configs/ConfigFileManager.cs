@@ -73,7 +73,7 @@ public static class ConfigFileManager
         {
             if (_configManager == null)
             {
-                foreach (var GUID in ConfigManagerGUIDs)
+                foreach (string GUID in ConfigManagerGUIDs)
                 {
                     if (Chainloader.PluginInfos.TryGetValue(GUID, out PluginInfo configManagerInfo) && configManagerInfo.Instance)
                     {
@@ -98,7 +98,7 @@ public static class ConfigFileManager
         get
         {
             _dispWindowInfo ??= ConfigManager.GetType().GetProperty(DisplayingWindowName);
-            return _dispWindowInfo;   
+            return _dispWindowInfo;
         }
     }
 
