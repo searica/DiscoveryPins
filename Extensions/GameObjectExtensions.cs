@@ -1,12 +1,29 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+using HarmonyLib;
+
 namespace DiscoveryPins.Extensions
 {
     internal static class GameObjectExtensions
     {
+        private const string MineRock5Name = "___MineRock5"
         private static readonly Dictionary<string, bool> IsPrefabLocationProxyMap = [];
         private static readonly Dictionary<string, bool> IsPrefabTarPitMap = [];
+        
+
+        internal static string GetPrefabName(this GameObject gameObject)
+        {
+            if (gameObject.name.Contains(MineRock5Name))
+            {
+                if (gameObject.TryGetComponent(out MineRock5Tracker mineRock5Tracker))
+                {
+                    return mineRock5Tracker.m_prefabName;
+                }
+            }
+            return Utils.GetPrefabName(gameObject);
+        }
+
         /// <summary>
         ///     Checks if this is a prefab without an existing parent transform.
         /// </summary>
@@ -52,6 +69,32 @@ namespace DiscoveryPins.Extensions
                 IsPrefabTarPitMap[prefabName] = isLocationProxy;
             }
             return isLocationProxy;
+        }
+    }
+
+    [HarmonyPatch]
+    internal class MineRock5Tracker : MonoBehaviour
+    {
+        public string m_prefabName;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MineRock5), nameof(MineRock5.Awake))]
+        private static void MineRock5TrackOnAwake(MineRock5 __instance)
+        {
+            if (!__instance)
+            {
+                return;
+            }
+            AddMineRock5Tracker(__instance);
+        }
+
+        public static void AddMineRock5Tracker(MineRock5 mineRock5)
+        {
+            if (!mineRock5.GetComponent<MineRock5Tracker>())
+            {
+                MineRock5Tracker tracker = mineRock5.gameObject.AddComponent<MineRock5Tracker>();
+                tracker.m_prefabName = Utils.GetPrefabName(mineRock5.gameObject);
+            }
         }
     }
 }
