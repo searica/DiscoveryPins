@@ -30,8 +30,6 @@ namespace DiscoveryPins.Patches
                 {
                     continue;
                 }
-
-                OrePins.TryAddAutoPinnerToOre(prefab);
                 PortalPins.TryAddAutoPinnerToPortal(prefab);
             }
         }

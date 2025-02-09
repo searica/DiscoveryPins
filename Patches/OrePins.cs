@@ -17,21 +17,36 @@ namespace DiscoveryPins.Patches
             "Silver", 
             "Obsidian",
             "Giant",
+            "Meteorite",
             "Tar"
         ];
 
         private static readonly HashSet<string> OrePrefabNames = [];
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MineRock5), nameof(MineRock5.Awake))]
+        private static void AddOreAutoPinnerOnAwakeMineRock5(MineRock5 __instance)
+        {
+            TryAddAutoPinnerToOre(__instance);
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Destructible), nameof(Destructible.Awake))]
+        private static void AddOreAutoPinnerOnAwakeDestructible(MineRock5 __instance)
+        {
+            TryAddAutoPinnerToOre(__instance);
+        }
+
+
         /// <summary>
         ///     Adds AutoPinner to prefab if it is actually Ore and not already modified.
         /// </summary>
         /// <param name="prefab"></param>
-        internal static void TryAddAutoPinnerToOre(GameObject prefab)
+        internal static void TryAddAutoPinnerToOre(Component oreComponent)
         {
-            if (IsOrePrefab(prefab, out string OreName) && !OrePrefabNames.Contains(prefab.name))
+            if (IsOrePrefab(oreComponent) && TryGetOreName(oreComponent, out string OreName))
             {
-                OrePrefabNames.Add(prefab.name);
-                AutoPinner.AddAutoPinner(prefab, OreName, AutoPins.AutoPinCategory.Ore);
+                AutoPinner.AddAutoPinner(oreComponent.gameObject, OreName, AutoPins.AutoPinCategory.Ore);
             }
         }
 
@@ -42,43 +57,16 @@ namespace DiscoveryPins.Patches
         /// <param name="gameObject"></param>
         /// <param name="OreName"></param>
         /// <returns></returns>
-        private static bool IsOrePrefab(GameObject gameObject, out string OreName)
+        private static bool IsOrePrefab(Component oreComponent)
         {
-            bool isOrePrefab = false;
-            OreName = null;
+            string prefabName = oreComponent.gameObject.GetPrefabName();
             foreach (var name in OreNames)
             {
-                if (gameObject.name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                if (prefabName.Contains(name, StringComparison.OrdinalIgnoreCase))
                 {
-                    OreName = name;
-                    isOrePrefab = true;
-                    break;
+                    return  true;
                 }
             }
-
-            if (!isOrePrefab) 
-            {
-                return false;
-            }
-
-            if (gameObject.GetComponent<Destructible>())
-            {
-                if (gameObject.TryGetComponent(out HoverText hoverText))
-                {
-                    OreName = hoverText.m_text;
-                }
-                return true;
-            }
-            else if (gameObject.TryGetComponent(out MineRock5 mineRock5))
-            {
-                OreName = mineRock5.m_name;
-                return true;
-            }
-            else if (gameObject.IsTarPit())
-            {
-                return true;
-            }
-
             return false;
         }
 
@@ -89,20 +77,21 @@ namespace DiscoveryPins.Patches
         /// <param name="prefab"></param>
         /// <param name="OreName"></param>
         /// <returns></returns>
-        internal static bool TryGetOreName(GameObject prefab, out string OreName)
+        internal static bool TryGetOreName(Component oreComponent, out string OreName)
         {
-            foreach (var name in OreNames)
-            {
-                if (prefab.name.Contains(name, StringComparison.OrdinalIgnoreCase))
+            
+            if (oreComponent is Destructible)
+            { 
+                if (oreComponent.TryGetComponent(out HoverText hoverText))
                 {
-                    if (prefab.TryGetComponent(out HoverText hoverText))
-                    {
-                        OreName = hoverText.m_text;
-                        return true;
-                    }
-                    OreName = name;
+                    OreName = hoverText.m_text;
                     return true;
                 }
+            }
+            else if (oreComponent is MineRock5 mineRock5)
+            {
+                OreName = mineRock5.m_name;
+                return true;
             }
 
             OreName = null;
