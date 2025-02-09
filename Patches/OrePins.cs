@@ -17,8 +17,7 @@ namespace DiscoveryPins.Patches
             "Silver", 
             "Obsidian",
             "Giant",
-            "Meteorite",
-            "Tar"
+            "Meteorite"
         ];
 
         private static readonly HashSet<string> OrePrefabNames = [];
@@ -151,8 +150,8 @@ namespace DiscoveryPins.Patches
             if (__instance.TryGetComponent(out AutoPinner autoPinner))
             {
                 if (__instance.m_spawnWhenDestroyed &&
-                    __instance.m_spawnWhenDestroyed.GetComponent<MineRock5>() &&
-                    TryGetOreName(__instance.m_spawnWhenDestroyed, out string OreName))
+                    __instance.m_spawnWhenDestroyed.TryGetComponent(out MineRock5 mineRock5) &&
+                    IsOrePrefab(mineRock5))
                 {
                     // Skip removing pin if it spawns a new ore prefab
                     return;
