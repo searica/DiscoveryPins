@@ -8,6 +8,15 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.7</td>
+			<td align="left">
+				<ul>
+					<li>Added flametal pinning.</li>
+					<li>Fixed some infrequent bug where ores that spawn as part of a location not being pinnable.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.6</td>
 			<td align="left">
 				<ul>
