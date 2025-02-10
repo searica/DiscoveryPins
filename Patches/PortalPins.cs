@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using DiscoveryPins.Pins;
+using DiscoveryPins.Extensions;
 
 namespace DiscoveryPins.Patches;
 
@@ -12,7 +14,32 @@ internal static class PortalPins
     private static readonly HashSet<string> PortalPrefabNames = new();
 
     /// <summary>
-    /// 
+    ///     Add Autopinner component to all ores in the game via editing their prefabs.
+    /// </summary>
+    [HarmonyPrefix]
+    [HarmonyPriority(Priority.First)]
+    [HarmonyPatch(typeof(ZoneSystem), nameof(ZoneSystem.Start))]
+    private static void AddAutoPinnerToPortalPrefabs()
+    {
+        // If loading into game world and prefabs have not been added
+        if (SceneManager.GetActiveScene().name != "main")
+        {
+            return;
+        }
+
+        // Get prefabs that are mineable ores and modify them
+        foreach (GameObject prefab in ZNetScene.instance.m_prefabs)
+        {
+            if (!prefab.IsTopLevelPrefab())
+            {
+                continue;
+            }
+            TryAddAutoPinnerToPortal(prefab);
+        }
+    }
+
+    /// <summary>
+    ///     Add auto-pinner to prefab if it is a portal.
     /// </summary>
     /// <param name="prefab"></param>
     internal static void TryAddAutoPinnerToPortal(GameObject prefab)

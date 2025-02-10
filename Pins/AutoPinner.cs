@@ -147,6 +147,8 @@ internal class AutoPinner : MonoBehaviour
             return true;
         }
 
+
+        // Get bounds of mineRock based on active colliders
         if (this.TryGetComponent(out MineRock mineRock))
         {
             Bounds bounds = new(Position, Vector3.zero);
