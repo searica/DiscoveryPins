@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.8</td>
+			<td align="left">
+				<ul>
+					<li>Fixed issues with auto-pinning flametal deposists.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.7</td>
 			<td align="left">
 				<ul>

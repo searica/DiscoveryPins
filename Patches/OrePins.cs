@@ -17,7 +17,8 @@ internal static class OrePins
         "Silver",
         "Obsidian",
         "Giant",
-        "Meteorite"
+        "LeviathanLava",
+        "Meteorite",
     ];
 
     private static readonly HashSet<string> OrePrefabNames = [];
