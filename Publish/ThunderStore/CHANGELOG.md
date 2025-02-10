@@ -8,6 +8,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.3.9</td>
+			<td align="left">
+				<ul>
+					<li>Changed ore pin detection to be based on what the deposit drops.</li>
+					<li>Implemented auto-pinning for different types of mineable rocks.</li>
+					<li>Removed tar auto-pins as they were not working. Will add working version in the future</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.8</td>
 			<td align="left">
 				<ul>
