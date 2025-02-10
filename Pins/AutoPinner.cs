@@ -124,67 +124,94 @@ internal class AutoPinner : MonoBehaviour
     private bool TryGetPointsToCheck(out List<Vector3> pointsToCheck)
     {
         // Get bounding points via mesh renderer if one is present.
-        MeshRenderer meshRenderer = null;
-        Location location = null;
         pointsToCheck = null;
-        Bounds bounds;
-
         if (this.TryGetComponent(out MineRock5 mineRock5) && mineRock5.m_meshRenderer)
         {
-            meshRenderer = mineRock5.m_meshRenderer;
-        }
-        else if (this.GetComponent<Destructible>())
-        {
-            meshRenderer = this.GetComponentInChildren<MeshRenderer>();
-        }
-        else if (gameObject.TryGetComponent(out location))
-        {
-            // just want to get location and move on if true.
-        }
-        else if (gameObject.IsLocationProxy())
-        {
-            location = gameObject.GetComponentInChildren<Location>();
+            // only auto-pin if it's actually being rendered
+            if (!mineRock5.m_meshRenderer.isVisible)
+            {
+                return false;
+            }
+            pointsToCheck = GetPointsFromBounds(mineRock5.m_meshRenderer.bounds);
+            return true;
         }
 
-        if (meshRenderer)
+        if (this.GetComponent<Destructible>())
         {
-            // only auto-pin if it's actually being rendered
+            MeshRenderer meshRenderer = this.GetComponentInChildren<MeshRenderer>();
             if (!meshRenderer.isVisible)
             {
                 return false;
             }
-            bounds = meshRenderer.bounds;
-        }
-        else if (location)
-        {
-            // estimate bounds from location radius
-            float size = location.m_exteriorRadius * 2f;
-            bounds = new(location.transform.position, new Vector3(size, size, size));
-        }
-        else
-        {
-            // just check the center
-            pointsToCheck = [Position];
+            pointsToCheck = GetPointsFromBounds(meshRenderer.bounds);
             return true;
         }
 
-        // create grid of points throughout the volume based on close enough spacing
-        // if the object has size smaller than close enough then it just adds the vertices
+        if (this.TryGetComponent(out MineRock mineRock))
+        {
+            Bounds bounds = new(Position, Vector3.zero);
+            if (mineRock.m_hitAreas == null || mineRock.m_hitAreas.Length < 1)
+            {
+                return false;
+            }
+            foreach (Collider collider in mineRock.m_hitAreas)
+            {
+                if (!collider.enabled || !collider.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+                bounds.Encapsulate(collider.bounds);  // grow to include collider
+            }
+            pointsToCheck = GetPointsFromBounds(bounds);
+            return true;
+        }
+
+
+        // Try to get location or location proxy if object is not a location.
+        if (!gameObject.TryGetComponent(out Location location) && gameObject.IsLocationProxy())
+        {
+            location = gameObject.GetComponentInChildren<Location>();
+        }
+        if (location)
+        {
+            // estimate bounds from location radius
+            float size = location.m_exteriorRadius * 2f;
+            Bounds bounds = new(location.transform.position, new Vector3(size, size, size));
+            pointsToCheck = GetPointsFromBounds(bounds);
+            return true;
+        }
+
+        // just check the center
+        pointsToCheck = [Position];
+        return true;
+    }
+
+    /// <summary>
+    ///     Get evenly spaced grid of points that span the bounds.
+    /// </summary>
+    /// <param name="bounds"></param>
+    /// <returns></returns>
+    private List<Vector3> GetPointsFromBounds(Bounds bounds)
+    {
         GetPointSpacing(bounds.size.x, CloseEnoughXZ, out int nXpts, out float xSpacing);
         GetPointSpacing(bounds.size.y, CloseEnoughY, out int nYpts, out float ySpacing);
         GetPointSpacing(bounds.size.z, CloseEnoughXZ, out int nZpts, out float zSpacing);
-        pointsToCheck = [Position, bounds.center]; // start with center points
+
+        List<Vector3> points = [Position, bounds.center]; // start with center points;
+
+        // create grid of points throughout the volume based on close enough spacing
+        // if the object has size smaller than close enough then it just adds the vertices
         for (int i = 0; i < nXpts; i++)
         {
             for (int j = 0; j < nYpts; j++)
             {
                 for (int k = 0; k < nZpts; k++)
                 {
-                    pointsToCheck.Add(bounds.min + new Vector3(i * xSpacing, j * ySpacing, k * zSpacing));
+                    points.Add(bounds.min + new Vector3(i * xSpacing, j * ySpacing, k * zSpacing));
                 }
             }
         }
-        return true;
+        return points;
     }
 
     private static void GetPointSpacing(float size, float targetSpacing, out int nPts, out float spacing)
