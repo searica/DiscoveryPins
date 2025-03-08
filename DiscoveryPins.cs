@@ -8,8 +8,8 @@ using HarmonyLib;
 using Jotunn.Utils;
 using Jotunn.Managers;
 using DiscoveryPins.Pins;
-using Configs;
 using Logging;
+using Jotunn.Extensions;
 
 namespace DiscoveryPins;
 
@@ -26,6 +26,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
 
     internal static DiscoveryPins Instance;
     internal static ConfigFile ConfigFile;
+    internal static ConfigFileWatcher ConfigFileWatcher;
 
     // Global settings
     internal const string GlobalSection = "Global";
@@ -82,10 +83,12 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
     public void Awake()
     {
         Instance = this;
-        ConfigFile = Config;
         Log.Init(Logger);
+        ConfigFile = Config;
+        ConfigFileWatcher = new(Config);
 
-        Config.Init(PluginGUID, false);
+
+        Config.SaveOnConfigSet = false;
         SetUpConfigEntries();
         UpdatePlugin(saveConfig: true, initialUpdate: true);
 
@@ -93,10 +96,8 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
         Game.isModded = true;
 
 
-
         // Re-initialization after reloading config and don't save since file was just reloaded
-        Config.SetupWatcher();
-        ConfigFileManager.OnConfigFileReloaded += () =>
+        ConfigFileWatcher.OnConfigFileReloaded += () =>
         {
             UpdatePlugin(saveConfig: false);
         };
@@ -116,7 +117,6 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
 
     internal void SetUpConfigEntries()
     {
-
         PinSpacing = Config.BindConfigInOrder(
             GlobalSection,
             "Pin Spacing",
@@ -124,7 +124,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
             "The minimum allowable distance between auto-pins."
             + " If a new auto-pin would be closer to an existing pin"
             + " than the value of Pin Spacing, then no pin will be placed.",
-            new AcceptableValueRange<float>(0, 100),
+            acceptableValues: new AcceptableValueRange<float>(0, 100),
             synced: false,
             configAttributes: new ConfigurationManagerAttributes() { ShowRangeAsPercent = false }
         );
@@ -144,7 +144,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
                 "Range",
                 20f,
                 "Maximum distance that auto pins can be generated.",
-                new AcceptableValueRange<float>(AutoPinner.CloseEnoughXZ, 50f),
+                acceptableValues: new AcceptableValueRange<float>(AutoPinner.CloseEnoughXZ, 50f),
                 synced: true
             ),
             Shortcut = Config.BindConfigInOrder(
@@ -196,7 +196,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
                         "Icon",
                         PinNames.PinTypeToName(pair.Value),
                         "Which icon to create the pin with.",
-                        PlaceablePins.AllowedPlaceablePinNames,
+                        acceptableValues: PlaceablePins.AllowedPlaceablePinNames,
                         synced: false
                     )
                 }
@@ -225,7 +225,6 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
             );
             PinColorConfigs[pair.Key].SettingChanged += OnColorConfigChanged;
         }
-
     }
 
     private void UpdatePlugin(bool saveConfig = true, bool initialUpdate = false)
@@ -246,5 +245,4 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
     {
         Config.Save();
     }
-
 }
