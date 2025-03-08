@@ -15,7 +15,16 @@
 		<MOD_DEPLOYPATH>$(BEPINEX_PATH)\plugins</MOD_DEPLOYPATH>
 		<SERVER_DEPLOYPATH>$(VALHEIM_SERVER)\BepInEx\plugins</SERVER_DEPLOYPATH>
 
+		<!--  SPlatform Ref since Jotunn doesn't add it -->
+		<Public_Assemblies  Condition="!Exists('$(Public_Assemblies)')">$(VALHEIM_INSTALL)\valheim_Data\Managed\publicized_assemblies</Public_Assemblies>
+
 		<CopyToServer>false</CopyToServer>
 		<CopyResources>false</CopyResources>
 	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="Splatform_publicized">
+			<HintPath>$(Public_Assemblies)\Splatform_publicized.dll</HintPath>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+	</ItemGroup>
 </Project>
