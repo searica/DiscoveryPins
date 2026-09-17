@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace DiscoveryPins.Helpers;
 
-internal static class EnumUtils
+internal static class EnumHelper
 {
     internal static IEnumerable<T> GetEnumValues<T>()
     {

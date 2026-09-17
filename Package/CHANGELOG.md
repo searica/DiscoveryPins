@@ -8,6 +8,14 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.4.0</td>
+			<td align="left">
+				<ul>
+					<li>Updated for Deep North release!</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.3.10</td>
 			<td align="left">
 				<ul>

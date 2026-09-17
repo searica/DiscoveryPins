@@ -1,5 +1,6 @@
-﻿using DiscoveryPins.Helpers;
+﻿//using DiscoveryPins.Helpers;
 using System.Collections.Generic;
+using DiscoveryPins.Helpers;
 using static Minimap;
 
 namespace DiscoveryPins.Pins;
@@ -66,7 +67,8 @@ internal class PinNames
         {
             return pinType;
         }
-        return EnumUtils.ParseEnum<PinType>(pinName);
+  
+        return EnumHelper.ParseEnum<PinType>(pinName);
 
     }
 }
