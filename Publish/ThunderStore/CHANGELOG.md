@@ -8,6 +8,15 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.4.1</td>
+			<td align="left">
+				<ul>
+					<li>Fixed tin deposits not being pinned. Should fix other small destructible objects that drop ore as well as the mod now checks the DropOnDestroyed component for anything with a Destructible component.</li>
+					<li>Updated Readme and added Contributing.md to make it clear that I will not engage with AI generated reports or PRs.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.4.0</td>
 			<td align="left">
 				<ul>

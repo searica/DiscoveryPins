@@ -71,24 +71,33 @@ internal static class OrePins
     /// <returns></returns>
     private static bool DropsOre(Destructible destructible)
     {
-        if (!destructible || !destructible.m_spawnWhenDestroyed)
+        if (!destructible)
         {
             return false;
         }
 
-        if (IsOreDrop(destructible.m_spawnWhenDestroyed))
+        if (destructible.m_spawnWhenDestroyed)
         {
-            return true;
+            if (IsOreDrop(destructible.m_spawnWhenDestroyed))
+            {
+                return true;
+            }
+
+            if (destructible.m_spawnWhenDestroyed.TryGetComponent(out MineRock5 mineRock5))
+            {
+                return DropsOre(mineRock5);
+            }
+
+            if (destructible.m_spawnWhenDestroyed.TryGetComponent(out MineRock mineRock))
+            {
+                return DropsOre(mineRock);
+            }
+
         }
 
-        if (destructible.m_spawnWhenDestroyed.TryGetComponent(out MineRock5 mineRock5))
+        if (destructible.TryGetComponent(out DropOnDestroyed destroyDrops) && destroyDrops)
         {
-            return DropsOre(mineRock5);
-        }
-
-        if (destructible.m_spawnWhenDestroyed.TryGetComponent(out MineRock mineRock))
-        {
-            return DropsOre(mineRock);
+            return DropTableContainsOreDrop(destroyDrops.m_dropWhenDestroyed);
         }
 
         return false;
@@ -276,7 +285,7 @@ internal static class OrePins
     /// <param name="__instance"></param>
     [HarmonyPrefix]
     [HarmonyPatch(typeof(Destructible), nameof(Destructible.Destroy))]
-    private static void RemoveDestructiblePineOnDestory(Destructible __instance)
+    private static void RemoveDestructiblePinOnDestory(Destructible __instance)
     {
         if (!__instance.TryGetComponent(out AutoPinner autoPinner))
         {
