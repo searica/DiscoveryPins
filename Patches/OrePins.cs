@@ -10,6 +10,8 @@ namespace DiscoveryPins.Patches;
 [HarmonyPatch]
 internal static class OrePins
 {
+    private static readonly Dictionary<string, string> OverworldLocationOreNamesMap = new Dictionary<string, string> {};
+
     private static readonly HashSet<string> OreDropNames = [
         "BlackMarble",
         "Softtissue",
@@ -18,7 +20,12 @@ internal static class OrePins
         "SilverOre",
         "Obsidian",
         "FlametalOreNew",
+        "IronScrap",
+        "CopperScrap",
+        "Chitin_0",
+        "Chitin"
     ];
+
     private static readonly List<string> OreNames = [
         "Tin",
         "Copper",
@@ -307,5 +314,52 @@ internal static class OrePins
                 
         }
         autoPinner.RemoveAutoPin();
+    }
+
+    /// <summary>
+    ///     Track locations that are effectively ore sites, such as tar pits
+    /// </summary>
+    /// <param name="__instance"></param>
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Location), nameof(Location.Awake))]
+    private static void LocationOre_AwakePostfix(Location __instance)
+    {
+        if (!__instance)
+        {
+            return;
+        }
+
+        string locationName = Utils.GetPrefabName(__instance.gameObject);
+        if (OverworldLocationOreNamesMap.ContainsKey(locationName))
+        {
+            return;
+        }
+
+        if (!__instance.TryGetLocationOreType(out string oreType))
+        {
+            return;
+        }
+        OverworldLocationOreNamesMap[locationName] = oreType;
+    }
+
+
+    /// <summary>
+    ///     Add auto-pinner to LocationProxy's Location instance if it is something that should be tracked
+    /// </summary>
+    /// <param name="__instance"></param>
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(LocationProxy), nameof(LocationProxy.SpawnLocation))]
+    private static void AddAutoPinnerToSpawnedLocationOreProxy(LocationProxy __instance)
+    {
+        if (!__instance || !__instance.m_instance)
+        {
+            return;
+        }
+
+        string locationName = Utils.GetPrefabName(__instance.m_instance);
+        if (OverworldLocationOreNamesMap.ContainsKey(locationName))
+        {
+            AutoPinner.AddAutoPinner(__instance.gameObject, OverworldLocationOreNamesMap[locationName], AutoPins.AutoPinCategory.Ore);
+        }
     }
 }

@@ -10,7 +10,26 @@ namespace DiscoveryPins.Patches;
 internal static class LocationPins
 {
     private static readonly HashSet<string> LocationNames = [];
-    private static readonly Dictionary<string, string> OverworldLocationNamesMap = [];
+
+    // various locations that are often useful to pin
+    private static readonly Dictionary<string, string> OverworldLocationNamesMap = new Dictionary<string, string> { 
+        { "CharredFortress", "$charredfortress" },  // include charred fortress because it feels like they should be in this category
+        { "StoneTower1", "Fuling Tower" },
+        { "StoneTower3", "Fuling Tower" },
+        { "Mistlands_GuardTower1_new", "Dvergr Tower" },
+        { "Mistlands_GuardTower1_ruined_new", "Dvergr Tower" },
+        { "Mistlands_GuardTower1_ruined_new2", "Dvergr Tower" },
+        { "Mistlands_GuardTower2_new", "Dvergr Tower" },
+        { "Mistlands_GuardTower3_new", "Dvergr Tower" },
+        { "Mistlands_GuardTower3_ruined_new", "Dvergr Tower" },
+        { "Mistlands_Excavation1", "Dvergr Dig" },
+        { "Mistlands_Excavation2", "Dvergr Dig" },
+        { "Mistlands_Excavation3", "Dvergr Dig" },
+        { "Mistlands_Harbour1", "Dvergr Dock" },
+        { "Mistlands_Lighthouse1_new", "Lighthouse" },
+        { "FireHole", "Surtlings" }
+
+    };
 
     /// <summary>
     ///     Track locations that spawn an exterior dungeon

@@ -8,6 +8,16 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.5.0</td>
+			<td align="left">
+				<ul>
+					<li>Added fuling towers, ashlands forts, surtling spawners, and dvergr structures in the mistlands to locations that are pinned if the "Auto Pin Locations" is enabled.</li>
+					<li>Fixed ancient swords and armor not auto pinning.</li>
+					<li>Added tar pits as an auto pin target and classified them as an "Ore".</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.4.1</td>
 			<td align="left">
 				<ul>

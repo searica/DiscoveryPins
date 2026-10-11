@@ -121,4 +121,23 @@ internal static class LocationExtensions
 
         return false;
     }
+
+
+    /// <summary>
+    ///     Tries to find out if this is a location that is effectively "Ore" such as a tar pit.
+    /// </summary>
+    /// <param name="location"></param>
+    /// <param name="generator"></param>
+    /// <returns></returns>
+    internal static bool TryGetLocationOreType(this Location location, out string oreType)
+    {
+        if (location.transform.Find("TarLiquid"))
+        {
+            oreType = "$item_tar";
+            return true;
+        }
+
+        oreType = null;
+        return false;
+    }
 }
