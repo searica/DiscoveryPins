@@ -201,6 +201,10 @@ internal static class OrePins
         else if (oreComponent is MineRock mineRock)
         {
             OreName = mineRock.m_name;
+            if (string.IsNullOrEmpty(OreName) && oreComponent.GetComponent<Leviathan>())
+            {
+                OreName = "Leviathan";
+            }
             return true;
         }
 
@@ -361,5 +365,20 @@ internal static class OrePins
         {
             AutoPinner.AddAutoPinner(__instance.gameObject, OverworldLocationOreNamesMap[locationName], AutoPins.AutoPinCategory.Ore);
         }
+    }
+
+    /// <summary>
+    ///     Track locations that are effectively ore sites, such as yggdrasil roots
+    /// </summary>
+    /// <param name="__instance"></param>
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(ResourceRoot), nameof(ResourceRoot.Awake))]
+    private static void AddAutoPinnerToYggdrasilRoot(ResourceRoot __instance)
+    {
+        if (!__instance)
+        {
+            return;
+        }
+        AutoPinner.AddAutoPinner(__instance.gameObject, __instance.m_name, AutoPins.AutoPinCategory.Ore);
     }
 }

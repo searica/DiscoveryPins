@@ -17,7 +17,7 @@ internal class AutoPinner : MonoBehaviour
     public string PinName;
     private bool AutoPinNameChanged = false;
 
-    public AutoPins.AutoPinCategory AutoPinCategory;
+    public AutoPins.AutoPinCategory PinCategory;
     private Vector3 LastPosition;
     public Vector3 Position
     {
@@ -41,7 +41,7 @@ internal class AutoPinner : MonoBehaviour
     {
         AutoPinner autoPinner = target.GetOrAddComponent<AutoPinner>();
         autoPinner.PinName = pinName;
-        autoPinner.AutoPinCategory = pinCategory;
+        autoPinner.PinCategory = pinCategory;
         //Log.LogDebug($"Added AutoPinner with name: {pinName} and category: {pinCategory.ToString()}");
     }
 
@@ -136,8 +136,9 @@ internal class AutoPinner : MonoBehaviour
             return true;
         }
 
-        if (this.GetComponent<Destructible>())
+        if (this.GetComponent<Destructible>() || this.GetComponent<ResourceRoot>())
         {
+            // both have a mesh renderer in the child components
             MeshRenderer meshRenderer = this.GetComponentInChildren<MeshRenderer>();
             if (!meshRenderer.isVisible)
             {
@@ -271,7 +272,7 @@ internal class AutoPinner : MonoBehaviour
 
     public bool TryGetAutoPinConfig(out DiscoveryPins.AutoPinConfig autoPinConfig)
     {
-        if (DiscoveryPins.Instance.AutoPinConfigs.TryGetValue(AutoPinCategory, out autoPinConfig))
+        if (DiscoveryPins.Instance.AutoPinConfigs.TryGetValue(PinCategory, out autoPinConfig))
         {
             return true;
         }
@@ -308,6 +309,11 @@ internal class AutoPinner : MonoBehaviour
         {
             return false;
         }
+        if (this.PinCategory != AutoPins.AutoPinCategory.Dungeon && Player.m_localPlayer && Player.m_localPlayer.InInterior())
+        {
+            return false; // don't pin things inside of a dungeon except for the dungeon itself
+        }
+
         PinType icon = PinNames.PinNameToType(autoPinConfig.Icon.Value);
 
 

@@ -14,21 +14,34 @@ internal static class LocationPins
     // various locations that are often useful to pin
     private static readonly Dictionary<string, string> OverworldLocationNamesMap = new Dictionary<string, string> { 
         { "CharredFortress", "$charredfortress" },  // include charred fortress because it feels like they should be in this category
-        { "StoneTower1", "Fuling Tower" },
-        { "StoneTower3", "Fuling Tower" },
-        { "Mistlands_GuardTower1_new", "Dvergr Tower" },
-        { "Mistlands_GuardTower1_ruined_new", "Dvergr Tower" },
-        { "Mistlands_GuardTower1_ruined_new2", "Dvergr Tower" },
-        { "Mistlands_GuardTower2_new", "Dvergr Tower" },
-        { "Mistlands_GuardTower3_new", "Dvergr Tower" },
-        { "Mistlands_GuardTower3_ruined_new", "Dvergr Tower" },
-        { "Mistlands_Excavation1", "Dvergr Dig" },
-        { "Mistlands_Excavation2", "Dvergr Dig" },
-        { "Mistlands_Excavation3", "Dvergr Dig" },
+        { "StoneTower1", "Tower" },  // fuling
+        { "StoneTower3", "Tower" },  // fuling
+        { "Mistlands_GuardTower1_new", "Tower" },
+        { "Mistlands_GuardTower1_ruined_new", "Tower" },
+        { "Mistlands_GuardTower1_ruined_new2", "Tower" },
+        { "Mistlands_GuardTower2_new", "Tower" },
+        { "Mistlands_GuardTower3_new", "Tower" },
+        { "Mistlands_GuardTower3_ruined_new", "Tower" },
+        { "Mistlands_Excavation1", "Digsite" },
+        { "Mistlands_Excavation2", "Digsite" },
+        { "Mistlands_Excavation3", "Digsite" },
         { "Mistlands_Harbour1", "Dvergr Dock" },
         { "Mistlands_Lighthouse1_new", "Lighthouse" },
-        { "FireHole", "Surtlings" }
-
+        { "FireHole", "Fire Spout" },
+        { "CharredTowerRuins1", "Ruins" },
+        { "CharredTowerRuins1_dvergr", "Ruins" },
+        { "StoneTowerRuins03", "Ruins" },
+        { "StoneTowerRuins04", "Ruins" },
+        { "StoneTowerRuins05", "Ruins" },
+        { "StoneTowerRuins05_leet", "Ruins" },
+        { "StoneTowerRuins07", "Ruins" },
+        { "StoneTowerRuins07_sunk", "Ruins" },
+        { "StoneTowerRuins08", "Ruins" },
+        { "StoneTowerRuins08_sunk", "Ruins" },
+        { "StoneTowerRuins09", "Ruins" },
+        { "StoneTowerRuins09_sunk", "Ruins" },
+        { "StoneTowerRuins10", "Ruins" },
+        { "StoneTowerRuins10_sunk", "Ruins" },
     };
 
     /// <summary>

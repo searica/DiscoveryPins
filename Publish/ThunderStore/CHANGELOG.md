@@ -8,6 +8,19 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.5.1</td>
+			<td align="left">
+				<ul>
+					<li>Prevent auto-pins being generated while inside of a dungeon (aside from pinning the dungeon itself).</li>
+					<li>Added yggdrasil roots as an auto pin target and classified them as an "Ore".</li>
+					<li>Added leviathans as an auto pin target and classified them as an "Ore".</li>
+					<li>Improved pin naming scheme for auto pinning locations and shortened most names to reduce clutter.</li>
+					<li>Added some more ashlands locations that are useful to pin.</li>
+					<li>Added the ruined towers, forts, and stone structures in the biomes leading up the ashlands as locations that can be pinned.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.5.0</td>
 			<td align="left">
 				<ul>

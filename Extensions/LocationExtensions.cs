@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 
@@ -8,6 +9,15 @@ internal static class LocationExtensions
 {
     private const string EntranceName = "GateWay";
     private const string ExteriorName = "exterior";
+
+    private static readonly Regex splitCamelCase = new Regex(@"
+        (?<=[A-Z])(?=[A-Z][a-z]) |
+        (?<=[^A-Z])(?=[A-Z]) |
+        (?<=[A-Za-z])(?=[^A-Za-z])", 
+        RegexOptions.IgnorePatternWhitespace
+    );
+
+
 
     /// <summary>
     ///     Try getting entrance to interior and interior name.
@@ -90,7 +100,20 @@ internal static class LocationExtensions
             return false;
         }
 
-        name = generator.m_themes.ToString().Replace("Goblin", "Fuling");
+
+        switch (generator.m_themes)
+        {
+            case Room.Theme.MeadowsVillage:
+                name = "Draugr Village";
+                break;
+            case Room.Theme.AshlandRuins:
+            case Room.Theme.FortressRuins:
+                name = "Ruins";
+                break;
+            default:
+                name = splitCamelCase.Replace(generator.m_themes.ToString(), " ").Replace("Goblin", "Fuling");
+                break;
+        }
         return true;
     }
 
