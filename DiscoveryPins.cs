@@ -10,6 +10,7 @@ using Jotunn.Managers;
 using DiscoveryPins.Pins;
 using Logging;
 using Jotunn.Extensions;
+using DiscoveryPins.Patches;
 
 namespace DiscoveryPins;
 
@@ -22,7 +23,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
     public const string PluginName = "DiscoveryPins";
     internal const string Author = "Searica";
     public const string PluginGUID = $"{Author}.Valheim.{PluginName}";
-    public const string PluginVersion = "0.5.1 ";
+    public const string PluginVersion = "0.6.0";
 
     internal static DiscoveryPins Instance;
     internal static ConfigFile ConfigFile;
@@ -95,6 +96,7 @@ internal sealed class DiscoveryPins : BaseUnityPlugin
         Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), harmonyInstanceId: PluginGUID);
         Game.isModded = true;
 
+        PortalPins.Initialize();
 
         // Re-initialization after reloading config and don't save since file was just reloaded
         ConfigFileWatcher.OnConfigFileReloaded += () =>

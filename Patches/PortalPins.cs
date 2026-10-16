@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using BepInEx;
+using DiscoveryPins.Extensions;
+using DiscoveryPins.Pins;
 using HarmonyLib;
+using Splatform;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using DiscoveryPins.Pins;
-using DiscoveryPins.Extensions;
+using static TeleportWorld;
 
 namespace DiscoveryPins.Patches;
 
@@ -12,6 +15,26 @@ internal static class PortalPins
 {
     private const string DefaultPortalName = "Portal";
     private static readonly HashSet<string> PortalPrefabNames = new();
+    private static float PrevNumPortalsUsed = 0;
+    private static float CurrentNumPortalsUsed = 0;
+
+    private static AutoPinner DestinationPortalPinner;
+    private static GameObject gameObject;
+    private static string DestinationPortalTag;
+    private static string TagAuthor;
+    private static ZDOID DestinationZDOID;
+
+
+
+    internal static void Initialize()
+    {
+        gameObject = new GameObject("DestinationPortalPinner");
+        DestinationPortalPinner = gameObject.AddComponent<AutoPinner>();
+        DestinationPortalPinner.PinName = DefaultPortalName;
+        DestinationPortalPinner.PinCategory = AutoPins.AutoPinCategory.Portal;
+        GameObject.DontDestroyOnLoad(gameObject);           
+    }
+
 
     /// <summary>
     ///     Add Autopinner component to all ores in the game via editing their prefabs.
@@ -115,8 +138,32 @@ internal static class PortalPins
     [HarmonyPatch(typeof(TeleportWorld), nameof(TeleportWorld.Teleport))]
     internal static void TeleportWorld_Teleport_Prefix(TeleportWorld __instance)
     {
-        TriggerAutoPinPortal(__instance);
+        if (TriggerAutoPinPortal(__instance))
+        {
+            DestinationZDOID =__instance.m_nview.GetZDO().GetConnectionZDOID(ZDOExtraData.ConnectionType.Portal);
+        }
+        else
+        {
+            DestinationZDOID = ZDOID.None;
+        }            
     }
+
+    /// <summary>
+    ///     Trigger pin at the destination portal when a player goes through one and their stats are incremented. 
+    /// </summary>
+    /// <param name="__instance"></param>
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Game), nameof(Game.IncrementPlayerStat))]
+    internal static void PinDestinationPatch(Game __instance, PlayerStatType stat)
+    {
+        if (stat != PlayerStatType.PortalsUsed)
+        {
+            return;
+        }
+        TriggerAutoPinDestination(DestinationZDOID);
+    }
+
+    
 
     /// <summary>
     ///     Trigger auto pin when hovering to read portal text.
@@ -129,22 +176,38 @@ internal static class PortalPins
         TriggerAutoPinPortal(__instance);
     }
 
-    //[HarmonyPostfix]
-    //[HarmonyPatch(typeof(Player), nameof(Player.TeleportTo))]
-    //private static void TriggerAutoPinDestination(Player __instance, Vector3 pos, bool __result) 
-    //{
-    //    // Check for AutoPinner at that location and trigger it
-    //}
+    private static void TriggerAutoPinDestination(ZDOID zdoID)
+    {
+        if (zdoID == null || zdoID == ZDOID.None) { return; }
+
+        ZDO zdo = ZDOMan.instance.GetZDO(zdoID);
+        if (zdo != null)
+        {
+            // get destination portal tag with fallback to default portal name if no tag exists
+            TagAuthor = zdo.GetString(ZDOVars.s_tagauthor);
+            PlatformUserID userId = (string.IsNullOrEmpty(TagAuthor) ? PlatformUserID.None : new PlatformUserID(TagAuthor));
+            DestinationPortalTag = CensorShittyWords.FilterUGC(zdo.GetString(ZDOVars.s_tag), UGCType.Text, userId, 0L);
+            DestinationPortalPinner.PinName = string.IsNullOrEmpty(DestinationPortalTag) ? DefaultPortalName : DestinationPortalTag;
+
+            // update position of auto pinner to destination portal
+            gameObject.transform.localPosition = zdo.GetPosition();
+
+            // trigger auto pin at destination
+            DestinationPortalPinner.AddAutoPin();
+        }
+    }
 
     /// <summary>
     ///     Trigger auto pin if possible.
     /// </summary>
     /// <param name="teleportWorld"></param>
-    private static void TriggerAutoPinPortal(TeleportWorld teleportWorld)
+    private static bool TriggerAutoPinPortal(TeleportWorld teleportWorld)
     {
         if (teleportWorld && teleportWorld.TryGetComponent(out AutoPinner autoPinner))
         {
             autoPinner.AddAutoPin();
+            return true;
         }
+        return false;
     }
 }

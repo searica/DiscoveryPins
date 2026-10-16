@@ -10,7 +10,8 @@ internal static class AutoPins
         Dungeon,
         Location,
         Ore,
-        Portal
+        Portal,
+        RuneStone
     }
 
     internal static Dictionary<AutoPinCategory, PinType> DefaultPinTypes = new()
@@ -18,6 +19,7 @@ internal static class AutoPins
         { AutoPinCategory.Dungeon, PinType.Icon4 }, // Cave
         { AutoPinCategory.Location, PinType.Icon0  }, // Fireplace
         { AutoPinCategory.Ore, PinType.Icon2 }, // Hammer
-        { AutoPinCategory.Portal, PinType.Icon3 } // Ball
+        { AutoPinCategory.Portal, PinType.Icon3 }, // Ball
+        { AutoPinCategory.RuneStone, PinType.Icon3} // Ball
     };
 }

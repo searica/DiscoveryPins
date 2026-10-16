@@ -23,7 +23,8 @@ internal static class OrePins
         "IronScrap",
         "CopperScrap",
         "Chitin_0",
-        "Chitin"
+        "Chitin",
+        "GoldOre",
     ];
 
     private static readonly List<string> OreNames = [

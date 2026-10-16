@@ -25,7 +25,7 @@ internal static class LocationPins
         { "Mistlands_Excavation1", "Digsite" },
         { "Mistlands_Excavation2", "Digsite" },
         { "Mistlands_Excavation3", "Digsite" },
-        { "Mistlands_Harbour1", "Dvergr Dock" },
+        { "Mistlands_Harbour1", "Harbour" },
         { "Mistlands_Lighthouse1_new", "Lighthouse" },
         { "FireHole", "Fire Spout" },
         { "CharredTowerRuins1", "Ruins" },
@@ -42,6 +42,7 @@ internal static class LocationPins
         { "StoneTowerRuins09_sunk", "Ruins" },
         { "StoneTowerRuins10", "Ruins" },
         { "StoneTowerRuins10_sunk", "Ruins" },
+        { "NorthMemorialPlace", "Memorial" }
     };
 
     /// <summary>
@@ -77,7 +78,7 @@ internal static class LocationPins
     /// <param name="__instance"></param>
     [HarmonyPostfix]
     [HarmonyPatch(typeof(LocationProxy), nameof(LocationProxy.SpawnLocation))]
-    private static void AddAutoPinnerToSpawnedLocationProxy(LocationProxy __instance)
+    private static void AddLocationAutoPinnerToSpawnedLocationProxy(LocationProxy __instance)
     {
         if (!__instance || !__instance.m_instance)
         {

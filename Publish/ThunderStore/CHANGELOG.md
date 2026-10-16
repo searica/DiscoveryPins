@@ -8,6 +8,19 @@
 			<th align="center">Notes</th>
 		</tr>
 		<tr>
+			<td align="center">0.6.0</td>
+			<td align="left">
+				<ul>
+					<li>Added automatic pinning of lore runestones using either the shortcut or via reading them (configurable).</li>
+					<li>Added auto pinning deep north ore deposits.</li>
+					<li>Added auto pinning deep north dungeons.</li>
+					<li>Added auto pinning some deep north locations in the overworld.</li>
+					<li>Added more robust automatic pinning of the portal you teleport to when you go through a portal.</li>
+					<li>Made the automatic detection of dungeons and locations more robust.</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
 			<td align="center">0.5.1</td>
 			<td align="left">
 				<ul>
